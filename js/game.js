@@ -114,18 +114,18 @@ function startGame() {
 
     // Executa quando o jogador toca em algum lugar.
     function down(p) {
-        console.log("CLICOU")
+        // console.log("CLICOU")
         for (let d of discs) {
             // Ela verifica se o jogador clicou em um disco.
             if (Math.hypot(p.x - d.x, p.y - d.y) < d.r) {
                 if (d.team === "blue") {
                     if(vez == 'VERMELHO'){
-                        console.log("Clicou no disco ERRADO: AZUL");
+                        // console.log("Clicou no disco ERRADO: AZUL");
                         return; // Cancela a jogada
                     }
                 } else {
                     if(vez == 'AZUL'){
-                        console.log("Clicou no disco ERRADO: VERMELHO");
+                        // console.log("Clicou no disco ERRADO: VERMELHO");
                         return; // Cancela a jogada
                     }
                 }
@@ -153,7 +153,7 @@ function startGame() {
 
         if (!sel) return;
         movendo = true;
-        console.log('MOVENDO: ' + movendo)
+        // console.log('MOVENDO: ' + movendo)
         alteracaoAposPecasFicaremParadas = false;
         sel.vx = (sx - p.x) * 0.08;
         sel.vy = (sy - p.y) * 0.08;
@@ -168,7 +168,7 @@ function startGame() {
 
     c.addEventListener("touchstart", function(e){
         e.preventDefault();
-        console.log("touchstart");
+        // console.log("touchstart");
         down({
             x: e.touches[0].clientX,
             y: e.touches[0].clientY
@@ -399,10 +399,10 @@ function startGame() {
             }
 
             mudarVez();
-            console.log('PAROU: ' + todasParadas)
-            console.log('MOVENDO: ' + movendo)
+            // console.log('PAROU: ' + todasParadas)
+            // console.log('MOVENDO: ' + movendo)
             if(bateuErrado){
-                console.log('VOCÊ BATEU ERRADO.')
+                // console.log('VOCÊ BATEU ERRADO.')
             } else{
                 pontosVermelho = pontosVermelho + pontosTemporarioVermelho;
                 pontosAzul = pontosAzul + pontosTemporarioAzul;
@@ -431,11 +431,13 @@ function startGame() {
         const vermelhos = discs.filter(d => d.team === "red").length;
         if (azuis === 1) {
             alert("🔵 Azul venceu!");
+            location.reload();
             return true;
         }
         if (vermelhos === 1) {
             alert("🔴 Vermelho venceu!");
-           return true;
+            location.reload();
+            return true;
         }
     }
 
@@ -455,7 +457,7 @@ function startGame() {
         if (vez === "AZUL") {
             if (a.team === "red" || b.team === "red") {
                 bateuErrado = true;
-                console.log('BATEU ERRADO!')
+                // console.log('BATEU ERRADO!')
                 return;
             }
         }
@@ -463,7 +465,7 @@ function startGame() {
         if (vez === "VERMELHO") {
             if (a.team === "blue" || b.team === "blue") {
                 bateuErrado = true;
-                console.log('BATEU ERRADO!')
+                // console.log('BATEU ERRADO!')
                 return;
             }
         }
