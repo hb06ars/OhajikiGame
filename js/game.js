@@ -115,32 +115,30 @@ function startGame() {
 
     // Executa quando o jogador toca em algum lugar.
     function down(p) {
-        if (estado !== "AGUARDANDO") return;
-        estado = "MIRANDO";
 
         if (movendo) {
             return;
         }
-        // console.log("CLICOU")
+
+        sel = null;
+
         for (let d of discs) {
-            // Ela verifica se o jogador clicou em um disco.
+
+            // Só permite selecionar peças da vez
+            if (vez === "AZUL" && d.team !== "blue")
+                continue;
+
+            if (vez === "VERMELHO" && d.team !== "red")
+                continue;
+
             if (Math.hypot(p.x - d.x, p.y - d.y) < d.r) {
-                if (d.team === "blue") {
-                    if(vez == 'VERMELHO'){
-                        // console.log("Clicou no disco ERRADO: AZUL");
-                        return; // Cancela a jogada
-                    }
-                } else {
-                    if(vez == 'AZUL'){
-                        // console.log("Clicou no disco ERRADO: VERMELHO");
-                        return; // Cancela a jogada
-                    }
-                }
+
                 sel = d;
                 discoLancado = d;
 
                 sx = p.x;
                 sy = p.y;
+
                 break;
             }
         }
