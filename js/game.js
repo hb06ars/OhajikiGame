@@ -12,6 +12,7 @@ var bateuErrado = false;
 var discosPontuados = new Set();
 var acertouAlgumaPeca = false;
 var discoLancado = null;
+let estado = "AGUARDANDO";
 
 const imgBlue = new Image();
 const imgRed = new Image();
@@ -114,6 +115,12 @@ function startGame() {
 
     // Executa quando o jogador toca em algum lugar.
     function down(p) {
+        if (estado !== "AGUARDANDO") return;
+        estado = "MIRANDO";
+
+        if (movendo) {
+            return;
+        }
         // console.log("CLICOU")
         for (let d of discs) {
             // Ela verifica se o jogador clicou em um disco.
@@ -148,6 +155,12 @@ function startGame() {
 
     // É chamada quando o jogador solta o dedo.
     function up(p) {
+        estado = "MOVENDO";
+
+        if (movendo) {
+            return;
+        }
+        
         bateuErrado = false;
         discosPontuados.clear();
 
@@ -377,6 +390,7 @@ function startGame() {
         );
 
         if (todasParadas && !alteracaoAposPecasFicaremParadas) {
+            estado = "AGUARDANDO";
             alteracaoAposPecasFicaremParadas = true;
             movendo = false;
 
