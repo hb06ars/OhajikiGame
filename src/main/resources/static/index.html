@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Ohajiki Online</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<!-- ==================== LOBBY ==================== -->
+<div id="telaLobby">
+
+    <h1>🎯 Ohajiki Online</h1>
+
+    <div class="painelLobby">
+
+        <button onclick="criarSala()">
+            Criar Sala
+        </button>
+
+        <br><br>
+
+        <input
+                id="codigoSala"
+                type="text"
+                maxlength="5"
+                placeholder="Código da Sala">
+
+        <button onclick="entrarSala()">
+            Entrar
+        </button>
+
+        <br><br>
+
+        <div id="statusSala">
+            Clique em "Criar Sala" ou informe um código.
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ==================== JOGO ==================== -->
+
+<div id="telaJogo" style="display:none;">
+
+    <div id="placar">
+            <span>🔵 Azul:
+                <span id="pontosAzul">0</span>
+            </span>
+
+        <span>
+                🔴 Vermelho:
+                <span id="pontosVermelho">0</span>
+            </span>
+    </div>
+
+    <div id="vez">
+            <span id="vezJogador">
+                Vez: 🔵 Azul
+            </span>
+    </div>
+
+    <canvas id="c"></canvas>
+
+</div>
+
+<script src="js/game.js"></script>
+<script src="js/socket.js"></script>
+
+</body>
+</html>
