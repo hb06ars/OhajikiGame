@@ -1,28 +1,56 @@
 const socket = new WebSocket("ws://localhost:8080/ws/jogo");
 
-socket.onopen = () => {
-    console.log("Conectado");
-    socket.send("Olá servidor!");
-
-};
 
 socket.onmessage = (e) => {
-    console.log(e.data);
+
+    const resposta = JSON.parse(e.data);
+    console.log(resposta);
+
+    switch (resposta.tipo) {
+
+        case "CONECTADO":
+            console.log(resposta.mensagem);
+            break;
+
+        case "SALA_CRIADA":
+            document.getElementById("codigoSala").value = resposta.sala;
+            document.getElementById("statusSala").innerHTML =
+                "Sala criada: " + resposta.sala;
+            break;
+
+        case "PARTIDA_INICIADA":
+            mostrarJogo();
+            break;
+
+        case "ERRO":
+            document.getElementById("statusSala").innerHTML =
+                resposta.mensagem;
+            break;
+    }
+
 };
 
-function criarSala(){
-    var codigoSala = document.getElementById("codigoSala").value;
-    if(codigoSala != null && codigoSala.length > 0){
-        document.getElementById("statusSala").innerHTML = "Sala criada: " + codigoSala;
-    } else {
-            document.getElementById("statusSala").innerHTML = "O código da sala deve ser preenchida para a criação!";
-    }
+function criarSala() {
+
+    socket.send(JSON.stringify({
+        tipo: "CRIAR_SALA"
+    }));
+
 }
 
 function entrarSala() {
-    console.log("Entrar sala");
-    document.getElementById("telaLobby").style.display = "none";
-    document.getElementById("telaJogo").style.display = "block";
+    const codigo = document.getElementById("codigoSala").value.trim();
+    if (codigo.length == 0) {
+        document.getElementById("statusSala").innerHTML =
+            "Informe o código da sala.";
+        return;
+    }
+
+    socket.send(JSON.stringify({
+        tipo: "ENTRAR_SALA",
+        sala: codigo
+    }));
+
 }
 
 function mostrarLobby() {
