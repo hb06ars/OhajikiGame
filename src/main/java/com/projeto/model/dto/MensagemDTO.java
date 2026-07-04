@@ -26,5 +26,6 @@ public class MensagemDTO {
     private Integer pontosVermelho;
     private String vez;
     private String jogador;
+    private String vencedor;
 
 }

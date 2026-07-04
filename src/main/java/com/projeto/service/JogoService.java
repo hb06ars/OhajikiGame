@@ -219,11 +219,24 @@ public class JogoService {
     }
 
     private void removerDiscos(WebSocketSession session, MensagemDTO dto) throws IOException {
+
         Sala sala = salas.get(dto.getSala());
+
         if (sala == null) {
             return;
         }
+
+        // Remove do estado da partida
+        sala.getEstado().getDiscos().removeIf(
+                disco -> dto.getDiscosRemovidos().contains(disco.getId())
+        );
+
+        // Verifica se alguém venceu
+        verificarVencedor(sala);
+
+        // Sincroniza os clientes
         enviarParaSala(sala, dto);
+
     }
 
     private void atualizarPontos(WebSocketSession session, MensagemDTO dto) throws IOException {
@@ -240,6 +253,37 @@ public class JogoService {
             return;
         }
         enviarParaSala(sala, dto);
+    }
+
+    private void verificarVencedor(Sala sala) throws IOException {
+        long azuis = sala.getEstado().getDiscos().stream()
+                .filter(d -> "blue".equals(d.getTeam()))
+                .count();
+
+        long vermelhos = sala.getEstado().getDiscos().stream()
+                .filter(d -> "red".equals(d.getTeam()))
+                .count();
+
+        if (azuis == 1) {
+
+            MensagemDTO dto = MensagemDTO.builder()
+                    .tipo(StatusEnum.FIM_JOGO.name())
+                    .vencedor("AZUL")
+                    .build();
+
+            enviarParaSala(sala, dto);
+            return;
+        }
+
+        if (vermelhos == 1) {
+
+            MensagemDTO dto = MensagemDTO.builder()
+                    .tipo(StatusEnum.FIM_JOGO.name())
+                    .vencedor("VERMELHO")
+                    .build();
+
+            enviarParaSala(sala, dto);
+        }
     }
 
 }

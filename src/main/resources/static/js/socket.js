@@ -48,6 +48,10 @@ socket.onmessage = (e) => {
         case "MUDAR_VEZ":
             atualizarVez(resposta);
             break;
+
+        case "FIM_JOGO":
+            fimJogo(resposta);
+            break;
     }
 
 };

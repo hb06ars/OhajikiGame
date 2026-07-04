@@ -459,7 +459,6 @@ function startGame() {
                     discosRemovidos: removidos
                 }));
 
-                verificarVencedor();
                 discoLancado = null;
                 mudarVez();
             }
@@ -567,12 +566,10 @@ function startGame() {
         const azuis = discs.filter(d => d.team === "blue").length;
         const vermelhos = discs.filter(d => d.team === "red").length;
         if (azuis === 1) {
-            alert("🔵 Azul venceu!");
             location.reload();
             return true;
         }
         if (vermelhos === 1) {
-            alert("🔴 Vermelho venceu!");
             location.reload();
             return true;
         }
@@ -619,6 +616,11 @@ function startGame() {
     window.atualizarVez = function (mensagem) {
         vez = mensagem.vez;
         preenchendoVez();
+    }
+
+    window.fimJogo = function (mensagem) {
+        alert("🏆 Vitória do " + mensagem.vencedor + "!");
+        location.reload();
     }
 
 
