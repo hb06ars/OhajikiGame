@@ -23,8 +23,9 @@ socket.onmessage = (e) => {
 
         case "SALA_CRIADA":
             document.getElementById("codigoSala").value = resposta.sala;
-            document.getElementById("statusSala").innerHTML =
-                "Sala criada: " + resposta.sala;
+            document.getElementById("statusSala").innerHTML = "Sala criada: " + resposta.sala + ", aguarde.";
+            document.getElementById("codigoSala").style.display = "none";
+            document.getElementById("btEntrarSala").style.display = "none";
             break;
 
         case "PARTIDA_INICIADA":
