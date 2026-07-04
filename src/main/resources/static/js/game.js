@@ -542,14 +542,21 @@ function startGame() {
             document.getElementById("vezJogador").innerHTML = 'Vez: 🔴 Vermelho';
     }
 
-    function mudarVez(){
-        if(vez == 'AZUL'){
+    function mudarVez() {
+        if (vez == 'AZUL') {
             vez = 'VERMELHO';
-        }
-        else{
+        } else {
             vez = 'AZUL';
         }
+
         preenchendoVez();
+
+        socket.send(JSON.stringify({
+            tipo: "MUDAR_VEZ",
+            sala: Partida.getSala(),
+            vez: vez
+        }));
+
     }
 
     function verificarVencedor() {
@@ -603,7 +610,11 @@ function startGame() {
         pontosVermelho = mensagem.pontosVermelho;
         document.getElementById("pontosAzul").innerHTML = pontosAzul;
         document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
+    }
 
+    window.atualizarVez = function (mensagem) {
+        vez = mensagem.vez;
+        preenchendoVez();
     }
 
 

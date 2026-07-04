@@ -53,6 +53,10 @@ public class JogoService {
                 atualizarPontos(session, dto);
                 break;
 
+            case "MUDAR_VEZ":
+                mudarVez(session, dto);
+                break;
+
 
         }
     }
@@ -215,6 +219,14 @@ public class JogoService {
     }
 
     private void atualizarPontos(WebSocketSession session, MensagemDTO dto) throws IOException {
+        Sala sala = salas.get(dto.getSala());
+        if (sala == null) {
+            return;
+        }
+        enviarParaSala(sala, dto);
+    }
+
+    private void mudarVez(WebSocketSession session, MensagemDTO dto) throws IOException {
         Sala sala = salas.get(dto.getSala());
         if (sala == null) {
             return;

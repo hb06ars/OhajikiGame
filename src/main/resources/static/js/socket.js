@@ -43,6 +43,10 @@ socket.onmessage = (e) => {
         case "ATUALIZAR_PONTOS":
             atualizarPontos(resposta);
             break;
+
+        case "MUDAR_VEZ":
+            atualizarVez(resposta);
+            break;
     }
 
 };
