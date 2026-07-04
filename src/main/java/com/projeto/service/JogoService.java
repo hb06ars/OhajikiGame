@@ -44,6 +44,10 @@ public class JogoService {
             case "JOGADA":
                 jogar(session, dto);
                 break;
+
+            case "REMOVER_DISCOS":
+                removerDiscos(session, dto);
+                break;
         }
     }
 
@@ -194,6 +198,14 @@ public class JogoService {
                 return new Ponto(x, y);
             }
         }
+    }
+
+    private void removerDiscos(WebSocketSession session, MensagemDTO dto) throws IOException {
+        Sala sala = salas.get(dto.getSala());
+        if (sala == null) {
+            return;
+        }
+        enviarParaSala(sala, dto);
     }
 
 

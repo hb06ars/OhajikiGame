@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -18,5 +20,7 @@ public class MensagemDTO {
 
     private Integer vx;
     private Integer vy;
+
+    private List<Integer> discosRemovidos;
 
 }

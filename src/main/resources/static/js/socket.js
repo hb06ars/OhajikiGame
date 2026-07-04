@@ -35,6 +35,10 @@ socket.onmessage = (e) => {
             console.log("JOGADA");
             window.aplicarJogada(resposta);
             break;
+
+        case "REMOVER_DISCOS":
+            removerDiscos(resposta);
+            break;
     }
 
 };

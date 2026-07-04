@@ -12,6 +12,7 @@ var bateuErrado = false;
 var discosPontuados = new Set();
 var acertouAlgumaPeca = false;
 var discoLancado = null;
+let discoLancadoId = null;
 let jogoIniciado = false;
 let estado = "AGUARDANDO";
 let discs = [];
@@ -344,7 +345,7 @@ function startGame() {
 
                     if (!colisoes.has(chave)) {
                         colisoes.add(chave);
-                        analisarColisao(a, b);
+                        analisarColisao(a, b, discoLancado);
                     } else {
 
                          const chave =
@@ -357,7 +358,7 @@ function startGame() {
                      }
 
                     // Analisa a colisão que teve, azul bateu em azul, ou azul bateu em vermelho, etc.
-                    analisarColisao(a, b)
+                    analisarColisao(a, b, discoLancado);
 
                     let nx = dx / dist;
                     let ny = dy / dist;
@@ -438,10 +439,18 @@ function startGame() {
             }
 
             if (!bateuErrado) {
+                const removidos = [...discosPontuados];
                 discs = discs.filter(d => !discosPontuados.has(d.id));
+
+                socket.send(JSON.stringify({
+                    tipo: "REMOVER_DISCOS",
+                    sala: Partida.getSala(),
+                    discosRemovidos: removidos
+                }));
+
                 verificarVencedor();
                 discoLancado = null;
-                mudarVez(); // Continua jogando caso acertar.
+                mudarVez();
             }
 
             mudarVez();
@@ -469,29 +478,13 @@ function startGame() {
     let colisoes = new Set();
     step();
 
-
-    function verificarVencedor() {
-        const azuis = discs.filter(d => d.team === "blue").length;
-        const vermelhos = discs.filter(d => d.team === "red").length;
-        if (azuis === 1) {
-            alert("🔵 Azul venceu!");
-            location.reload();
-            return true;
-        }
-        if (vermelhos === 1) {
-            alert("🔴 Vermelho venceu!");
-            location.reload();
-            return true;
-        }
-    }
-
 }
 // FIM START GAME ------------------------------------------------
 
 
 // FORA DO START GAME ------------------------------------------------
 
-    function analisarColisao(a, b){
+    function analisarColisao(a, b, discoLancado){
         acertouAlgumaPeca = true;
 
         if (a.remover || b.remover) {
@@ -552,15 +545,27 @@ function startGame() {
         preenchendoVez();
     }
 
-    window.aplicarJogada = function (jogada) {
-        console.log("Aplicando jogada:", jogada);
-        const disco = discs.find(d => d.id === jogada.discoId);
-        console.log("Disco encontrado:", disco);
+    function verificarVencedor() {
+        const azuis = discs.filter(d => d.team === "blue").length;
+        const vermelhos = discs.filter(d => d.team === "red").length;
+        if (azuis === 1) {
+            alert("🔵 Azul venceu!");
+            location.reload();
+            return true;
+        }
+        if (vermelhos === 1) {
+            alert("🔴 Vermelho venceu!");
+            location.reload();
+            return true;
+        }
+    }
 
+    window.aplicarJogada = function (jogada) {
+        const disco = discs.find(d => d.id === jogada.discoId);
         if (!disco) {
             return;
         }
-
+        discoLancado = disco;
         disco.vx = jogada.vx;
         disco.vy = jogada.vy;
     }
@@ -576,6 +581,14 @@ function startGame() {
                 new Promise(r => imgRed.onload = r)
             ]).then(startGame);
         }
+    }
+
+    window.removerDiscos = function (mensagem) {
+        if (!mensagem.discosRemovidos) {
+            return;
+        }
+        discs = discs.filter(d => !mensagem.discosRemovidos.includes(d.id));
+        verificarVencedor();
     }
 
 
