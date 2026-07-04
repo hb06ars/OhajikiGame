@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Ohajiki Offline</title>
+    <link rel="stylesheet" href="css/styleoffline.css">
+</head>
+
+<body>
+
+<!-- ==================== LOBBY ==================== -->
+<div id="telaLobby">
+    <h1>🎯 Ohajiki Offline</h1>
+    <div class="painelLobby">
+        <button onclick="entrarSala()">
+            Jogar
+        </button>
+        <br><br>
+    </div>
+
+</div>
+
+<!-- ==================== JOGO ==================== -->
+
+<div id="telaJogo" style="display:none;">
+    <div id="placar">
+            <span>🔵 Azul:
+                <span id="pontosAzul">0</span>
+            </span>
+            <span>
+                🔴 Vermelho:
+                <span id="pontosVermelho">0</span>
+            </span>
+    </div>
+    <div id="vez">
+            <span id="vezJogador">
+                Vez: 🔵 Azul
+            </span>
+    </div>
+    <canvas id="c"></canvas>
+</div>
+
+<script src="js/gameoffline.js"></script>
+
+</body>
+</html>
