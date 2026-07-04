@@ -32,6 +32,7 @@ socket.onmessage = (e) => {
             Partida.setSala(resposta.sala);
             Partida.setEstado(resposta.estado);
             Partida.setJogador(resposta.jogador);
+            vez = resposta.estado.vez;
             mostrarJogo();
             window.iniciarJogoOnline();
             break;

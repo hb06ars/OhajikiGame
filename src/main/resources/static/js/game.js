@@ -1,4 +1,4 @@
-var vez = Math.random() < 0.5 ? "AZUL" : "VERMELHO";
+var vez = "AZUL";
 var pontosTemporarioAzul = 0;
 var pontosTemporarioVermelho = 0;
 var pontosAzul = 0;

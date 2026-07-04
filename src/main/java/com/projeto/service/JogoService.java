@@ -368,12 +368,18 @@ public class JogoService {
                         b.setVy(b.getVy() - p * ny);
                     }
 
+                    String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
+
                     if (estado.getDiscoJogado() == null || a.getId() != estado.getDiscoJogado()) {
-                        a.setRemover(true);
+                        if (a.getTeam().equals(timeDaVez)) {
+                            a.setRemover(true);
+                        }
                     }
 
                     if (estado.getDiscoJogado() == null || b.getId() != estado.getDiscoJogado()) {
-                        b.setRemover(true);
+                        if (b.getTeam().equals(timeDaVez)) {
+                            b.setRemover(true);
+                        }
                     }
                 }
             }
