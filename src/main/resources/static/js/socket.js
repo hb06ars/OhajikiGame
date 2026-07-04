@@ -1,30 +1,47 @@
-const socket = new WebSocket("ws://localhost:8080/ws/jogo");
+const protocolo = location.protocol === "https:" ? "wss" : "ws";
 
+const socket = new WebSocket(
+    `${protocolo}://${location.host}/ws/jogo`
+);
+
+//console.log("Socket carregado");
 
 socket.onmessage = (e) => {
 
     const resposta = JSON.parse(e.data);
-    console.log(resposta);
+    //console.log(resposta);
+    //console.log("Mensagem recebida:", resposta.tipo);
 
     switch (resposta.tipo) {
 
         case "CONECTADO":
-            console.log(resposta.mensagem);
+            //console.log(resposta.mensagem);
             break;
 
         case "SALA_CRIADA":
+            //console.log("ENTROU EM SALA_CRIADA");
             document.getElementById("codigoSala").value = resposta.sala;
             document.getElementById("statusSala").innerHTML =
                 "Sala criada: " + resposta.sala;
             break;
 
         case "PARTIDA_INICIADA":
+            //console.log("ENTROU EM PARTIDA_INICIADA");
+            //console.log(resposta.estado.discos);
+            Partida.setEstado(resposta.estado);
+            Partida.setSala(resposta.sala);
             mostrarJogo();
+            window.iniciarJogoOnline();
             break;
 
         case "ERRO":
             document.getElementById("statusSala").innerHTML =
                 resposta.mensagem;
+            break;
+
+        case "JOGADA":
+            console.log("JOGADA");
+            window.aplicarJogada(resposta);
             break;
     }
 

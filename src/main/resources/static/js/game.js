@@ -12,7 +12,13 @@ var bateuErrado = false;
 var discosPontuados = new Set();
 var acertouAlgumaPeca = false;
 var discoLancado = null;
+let jogoIniciado = false;
 let estado = "AGUARDANDO";
+let discs = [];
+let sel = null;
+let sx = 0;
+let sy = 0;
+
 
 const imgBlue = new Image();
 const imgRed = new Image();
@@ -20,16 +26,25 @@ const imgRed = new Image();
 imgBlue.src = "img/disco_azul.png";
 imgRed.src = "img/disco_vermelho.png";
 
-// Só inicia quandoos discos carregarem a imagem.
-Promise.all([
-    new Promise(r => imgBlue.onload = r),
-    new Promise(r => imgRed.onload = r)
-]).then(startGame);
+
 
 
 // START GAME ------------------------------------------------
 // Essa função faz toda a inicialização.
 function startGame() {
+    if (jogoIniciado) {
+        return;
+    }
+    jogoIniciado = true;
+
+    //console.trace("START GAME");
+    estado = Partida.getEstado();
+    //console.log(estado);
+    if (!estado) {
+        alert("Estado da partida não recebido.");
+        return;
+    }
+
     preenchendoVez();
 
     // Div do canvas no html com id = c, com um Contexto 2D.
@@ -46,7 +61,26 @@ function startGame() {
     onresize = rs;
     rs();
 
-    let discs = [];
+    estado = Partida.getEstado();
+    //console.log("Estado recebido:", estado);
+    discs = [];
+    estado.discos.forEach(d => {
+        discs.push({
+            id: d.id,
+            team: d.team,
+            x: d.x,
+            y: d.y,
+            vx: d.vx,
+            vy: d.vy,
+            angle: d.angle,
+            r: 20,
+            remover: d.remover,
+            img: d.team === "blue" ? imgBlue : imgRed,
+            ax: null,
+            ay: null
+        });
+    });
+    //console.log("Discos carregados:", discs);
 
     // Responsável por criar os discos de forma aleatória na mesa, sem encostar um no outro.
     function add(n, team) {
@@ -95,9 +129,6 @@ function startGame() {
         }
     }
 
-    add(5, "blue", 80);
-    add(5, "red", -80);
-
     let sel = null;
     let sx = 0;
     let sy = 0;
@@ -113,7 +144,7 @@ function startGame() {
         };
     }
 
-    // Executa quando o jogador toca em algum lugar.
+        // Executa quando o jogador toca em algum lugar.
     function down(p) {
 
         if (movendo) {
@@ -158,7 +189,7 @@ function startGame() {
         if (movendo) {
             return;
         }
-        
+
         bateuErrado = false;
         discosPontuados.clear();
 
@@ -168,6 +199,17 @@ function startGame() {
         alteracaoAposPecasFicaremParadas = false;
         sel.vx = (sx - p.x) * 0.08;
         sel.vy = (sy - p.y) * 0.08;
+
+        console.log(Partida)
+
+        socket.send(JSON.stringify({
+            tipo: "JOGADA",
+            sala: Partida.sala,
+            discoId: sel.id,
+            vx: sel.vx,
+            vy: sel.vy
+        }));
+
         sel.ax = null;
         sel.ay = null;
         sel = null;
@@ -521,5 +563,36 @@ function startGame() {
         }
         preenchendoVez();
     }
+
+    window.aplicarJogada = function (jogada) {
+        const disco = discs.find(d => d.id === jogada.discoId);
+        if (!disco) {
+            return;
+        }
+        disco.vx = jogada.vx;
+        disco.vy = jogada.vy;
+
+    }
+
+
+    // INICIAR JOGO ONLINE
+    window.iniciarJogoOnline = function () {
+        //console.log("INICIAR JOGO ONLINE");
+        //console.log(Partida);
+        if (imgBlue.complete && imgRed.complete) {
+            startGame();
+        } else {
+            Promise.all([
+                new Promise(r => imgBlue.onload = r),
+                new Promise(r => imgRed.onload = r)
+            ]).then(startGame);
+        }
+    }
+
+    // INICIAR JOGO ONLINE
+    window.aplicarJogada = function () {
+        console.trace("aplicarJogada");
+    }
+
 
 // FIM FORA DO START GAME ------------------------------------------------

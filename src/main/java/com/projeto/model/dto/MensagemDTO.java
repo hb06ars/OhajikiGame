@@ -5,16 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+@Builder
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MensagemDTO {
-
     private String tipo;
     private String sala;
-    private String jogador;
     private String mensagem;
-    private Object dados;
+    private Integer discoId;
+    private EstadoPartida estado;
+
+    private Integer vx;
+    private Integer vy;
 
 }

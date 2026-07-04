@@ -8,4 +8,5 @@ public class Sala {
     private String codigo;
     private WebSocketSession azul;
     private WebSocketSession vermelho;
+    private EstadoPartida estado;
 }
