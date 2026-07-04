@@ -37,9 +37,7 @@ function startGame() {
     }
     jogoIniciado = true;
 
-    //console.trace("START GAME");
     estado = Partida.getEstado();
-    //console.log(estado);
     if (!estado) {
         alert("Estado da partida não recebido.");
         return;
@@ -62,7 +60,6 @@ function startGame() {
     rs();
 
     estado = Partida.getEstado();
-    //console.log("Estado recebido:", estado);
     discs = [];
     estado.discos.forEach(d => {
         discs.push({
@@ -80,7 +77,6 @@ function startGame() {
             ay: null
         });
     });
-    //console.log("Discos carregados:", discs);
 
     // Responsável por criar os discos de forma aleatória na mesa, sem encostar um no outro.
     function add(n, team) {
@@ -195,12 +191,9 @@ function startGame() {
 
         if (!sel) return;
         movendo = true;
-        // console.log('MOVENDO: ' + movendo)
         alteracaoAposPecasFicaremParadas = false;
         sel.vx = (sx - p.x) * 0.08;
         sel.vy = (sy - p.y) * 0.08;
-
-        console.log(Partida)
 
         socket.send(JSON.stringify({
             tipo: "JOGADA",
@@ -221,7 +214,6 @@ function startGame() {
 
     c.addEventListener("touchstart", function(e){
         e.preventDefault();
-        // console.log("touchstart");
         down({
             x: e.touches[0].clientX,
             y: e.touches[0].clientY
@@ -453,8 +445,6 @@ function startGame() {
             }
 
             mudarVez();
-            // console.log('PAROU: ' + todasParadas)
-            // console.log('MOVENDO: ' + movendo)
             if(bateuErrado){
                 // console.log('VOCÊ BATEU ERRADO.')
             } else{
@@ -511,7 +501,6 @@ function startGame() {
         if (vez === "AZUL") {
             if (a.team === "red" || b.team === "red") {
                 bateuErrado = true;
-                // console.log('BATEU ERRADO!')
                 return;
             }
         }
@@ -519,7 +508,6 @@ function startGame() {
         if (vez === "VERMELHO") {
             if (a.team === "blue" || b.team === "blue") {
                 bateuErrado = true;
-                // console.log('BATEU ERRADO!')
                 return;
             }
         }
@@ -565,20 +553,21 @@ function startGame() {
     }
 
     window.aplicarJogada = function (jogada) {
+        console.log("Aplicando jogada:", jogada);
         const disco = discs.find(d => d.id === jogada.discoId);
+        console.log("Disco encontrado:", disco);
+
         if (!disco) {
             return;
         }
+
         disco.vx = jogada.vx;
         disco.vy = jogada.vy;
-
     }
 
 
     // INICIAR JOGO ONLINE
     window.iniciarJogoOnline = function () {
-        //console.log("INICIAR JOGO ONLINE");
-        //console.log(Partida);
         if (imgBlue.complete && imgRed.complete) {
             startGame();
         } else {
@@ -589,10 +578,6 @@ function startGame() {
         }
     }
 
-    // INICIAR JOGO ONLINE
-    window.aplicarJogada = function () {
-        console.trace("aplicarJogada");
-    }
 
 
 // FIM FORA DO START GAME ------------------------------------------------
