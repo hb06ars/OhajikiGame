@@ -30,7 +30,7 @@ public class JogoService {
     private static final double CENTRO_X = 500;
     private static final double CENTRO_Y = 500;
     private static final double RAIO_MESA = 400;
-    private static final double RAIO_DISCO = 20;
+    private static final double RAIO_DISCO = 48;
 
     public void processarMensagem(WebSocketSession session, MensagemDTO dto) throws IOException {
         switch (dto.getTipo()) {

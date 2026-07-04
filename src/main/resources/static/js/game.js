@@ -71,7 +71,7 @@ function startGame() {
             vx: d.vx,
             vy: d.vy,
             angle: d.angle,
-            r: 20,
+            r: 48,
             remover: d.remover,
             img: d.team === "blue" ? imgBlue : imgRed,
             ax: null,
