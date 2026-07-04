@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class EstadoPartida {
+    private Integer discoJogado;
     private String vez;
     private List<Disco> discos = new ArrayList<>();
     private int pontosAzul;

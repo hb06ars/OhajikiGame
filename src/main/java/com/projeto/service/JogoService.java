@@ -46,10 +46,6 @@ public class JogoService {
                 jogar(session, dto);
                 break;
 
-            case "REMOVER_DISCOS":
-                removerDiscos(session, dto);
-                break;
-
             case "ATUALIZAR_PONTOS":
                 atualizarPontos(session, dto);
                 break;
@@ -86,17 +82,7 @@ public class JogoService {
                 .mensagem("Sala criada: " + codigo)
                 .build();
 
-        System.out.println("Quantidade de discos: " + sala.getEstado().getDiscos().size());
         System.out.println("Sala criada: " + codigo);
-
-        for (Disco d : sala.getEstado().getDiscos()) {
-            System.out.println(
-                    d.getId() + " " +
-                            d.getTeam() + " -> (" +
-                            d.getX() + ", " +
-                            d.getY() + ")"
-            );
-        }
 
         session.sendMessage(new TextMessage(jsonUtils.toJson(resposta)));
     }
@@ -167,6 +153,7 @@ public class JogoService {
 
         disco.setVx(dto.getVx());
         disco.setVy(dto.getVy());
+        sala.getEstado().setDiscoJogado(disco.getId());
     }
 
     private List<Disco> criarDiscos() {
@@ -312,7 +299,7 @@ public class JogoService {
         double altura = 1600;
         double r = 48;
 
-        // movimento + atrito
+        // movimento
         for (Disco d : discos) {
 
             d.setX(d.getX() + d.getVx());
@@ -321,7 +308,6 @@ public class JogoService {
             d.setVx(d.getVx() * 0.98);
             d.setVy(d.getVy() * 0.98);
 
-            // bordas
             if (d.getX() < r) {
                 d.setX(r);
                 d.setVx(-d.getVx() * 0.9);
@@ -343,7 +329,7 @@ public class JogoService {
             }
         }
 
-        // colisão simples
+        // colisão
         for (int i = 0; i < discos.size(); i++) {
             for (int j = i + 1; j < discos.size(); j++) {
 
@@ -381,54 +367,29 @@ public class JogoService {
                         b.setVx(b.getVx() - p * nx);
                         b.setVy(b.getVy() - p * ny);
                     }
-                }
-            }
-        }
-    }
 
-    private void resolverColisoes(List<Disco> discos) {
+                    if (estado.getDiscoJogado() == null || a.getId() != estado.getDiscoJogado()) {
+                        a.setRemover(true);
+                    }
 
-        for (int i = 0; i < discos.size(); i++) {
-            for (int j = i + 1; j < discos.size(); j++) {
-
-                Disco a = discos.get(i);
-                Disco b = discos.get(j);
-
-                double dx = b.getX() - a.getX();
-                double dy = b.getY() - a.getY();
-
-                double dist = Math.sqrt(dx * dx + dy * dy);
-                double min = RAIO_DISCO * 2;
-
-                if (dist < min && dist > 0) {
-
-                    double nx = dx / dist;
-                    double ny = dy / dist;
-
-                    double overlap = min - dist;
-
-                    a.setX(a.getX() - nx * overlap / 2);
-                    b.setX(b.getX() + nx * overlap / 2);
-
-                    a.setY(a.getY() - ny * overlap / 2);
-                    b.setY(b.getY() + ny * overlap / 2);
-
-                    double dvx = b.getVx() - a.getVx();
-                    double dvy = b.getVy() - a.getVy();
-
-                    double p = dvx * nx + dvy * ny;
-
-                    if (p < 0) {
-                        a.setVx(a.getVx() + p * nx);
-                        a.setVy(a.getVy() + p * ny);
-
-                        b.setVx(b.getVx() - p * nx);
-                        b.setVy(b.getVy() - p * ny);
+                    if (estado.getDiscoJogado() == null || b.getId() != estado.getDiscoJogado()) {
+                        b.setRemover(true);
                     }
                 }
             }
         }
+
+        boolean existeMovimento = discos.stream()
+                .anyMatch(d -> Math.abs(d.getVx()) > 0.05 || Math.abs(d.getVy()) > 0.05);
+
+        if (!existeMovimento) {
+            discos.removeIf(Disco::isRemover);
+            estado.setDiscoJogado(null);
+        }
+
     }
+
+
 
     private void broadcastEstado(Sala sala) throws IOException {
         MensagemDTO dto = MensagemDTO.builder()
@@ -454,13 +415,10 @@ public class JogoService {
     public void stepAllSalas() throws IOException {
         for (Sala sala : salas.values()) {
             step(sala);
-            try {
-                enviarEstado(sala);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            enviarEstado(sala);
         }
     }
+
 
 
 }

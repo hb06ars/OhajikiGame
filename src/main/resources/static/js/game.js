@@ -296,13 +296,6 @@ function startGame() {
         }
     }
 
-    window.removerDiscos = function (mensagem) {
-        if (!mensagem.discosRemovidos) {
-            return;
-        }
-        discs = discs.filter(d => !mensagem.discosRemovidos.includes(d.id));
-    }
-
     window.atualizarPontos = function (mensagem) {
         pontosAzul = mensagem.pontosAzul;
         pontosVermelho = mensagem.pontosVermelho;
@@ -346,36 +339,32 @@ function startGame() {
 
                 clientDisc.vx = serverDisc.vx;
                 clientDisc.vy = serverDisc.vy;
-                clientDisc.angle = serverDisc.angle;
             }
+
+            discs = discs.filter(d =>
+                estadoServidor.discos.some(s => s.id === d.id)
+            );
         }
 
         for (let d of discs) {
 
-            if (!d.img) continue;
+            if (!d.img) {
+                d.img = d.team === "blue" ? imgBlue : imgRed;
+                d.r = 48;
+            }
 
             x.save();
             x.translate(d.x, d.y);
-            x.rotate(d.angle || 0);
-
             x.drawImage(d.img, -d.r, -d.r, d.r * 2, d.r * 2);
-
             x.restore();
         }
 
-        // 🔥 MIRA (AGORA SIM, FORA DO LOOP)
         if (sel && sel.ax != null) {
-
-            x.save();
             x.beginPath();
             x.strokeStyle = "white";
-            x.lineWidth = 2;
-
             x.moveTo(sel.x, sel.y);
             x.lineTo(sel.ax, sel.ay);
-
             x.stroke();
-            x.restore();
         }
 
         requestAnimationFrame(render);
