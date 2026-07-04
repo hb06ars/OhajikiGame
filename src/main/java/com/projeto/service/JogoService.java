@@ -9,6 +9,7 @@ import com.projeto.model.dto.Sala;
 import com.projeto.model.enums.StatusEnum;
 import com.projeto.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -86,6 +87,7 @@ public class JogoService {
                 .build();
 
         System.out.println("Quantidade de discos: " + sala.getEstado().getDiscos().size());
+        System.out.println("Sala criada: " + codigo);
 
         for (Disco d : sala.getEstado().getDiscos()) {
             System.out.println(
@@ -136,6 +138,8 @@ public class JogoService {
 
     private void enviarParaSala(Sala sala, MensagemDTO dto) throws IOException {
 
+        if (sala == null) return;
+
         String json = jsonUtils.toJson(dto);
 
         if (sala.getAzul() != null && sala.getAzul().isOpen()) {
@@ -145,32 +149,24 @@ public class JogoService {
         if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
             sala.getVermelho().sendMessage(new TextMessage(json));
         }
-
     }
 
-    private void jogar(WebSocketSession session, MensagemDTO dto) throws IOException {
+    private void jogar(WebSocketSession session, MensagemDTO dto) {
 
         Sala sala = salas.get(dto.getSala());
 
-        if (sala == null) {
-            return;
-        }
+        if (sala == null) return;
 
-        String json = jsonUtils.toJson(dto);
+        Disco disco = sala.getEstado().getDiscos()
+                .stream()
+                .filter(d -> d.getId() == dto.getDiscoId())
+                .findFirst()
+                .orElse(null);
 
-        if (session.getId().equals(sala.getAzul().getId())) {
+        if (disco == null) return;
 
-            if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
-                sala.getVermelho().sendMessage(new TextMessage(json));
-            }
-
-        } else {
-
-            if (sala.getAzul() != null && sala.getAzul().isOpen()) {
-                sala.getAzul().sendMessage(new TextMessage(json));
-            }
-
-        }
+        disco.setVx(dto.getVx());
+        disco.setVy(dto.getVy());
     }
 
     private List<Disco> criarDiscos() {
@@ -298,5 +294,173 @@ public class JogoService {
             enviarParaSala(sala, dto);
         }
     }
+
+    @Scheduled(fixedRate = 16) // ~60fps
+    public void loop() throws IOException {
+        for (Sala sala : salas.values()) {
+            step(sala);
+            enviarEstado(sala);
+        }
+    }
+
+    private void step(Sala sala) {
+
+        EstadoPartida estado = sala.getEstado();
+        List<Disco> discos = estado.getDiscos();
+
+        double largura = 1000;
+        double altura = 1600;
+        double r = 48;
+
+        // movimento + atrito
+        for (Disco d : discos) {
+
+            d.setX(d.getX() + d.getVx());
+            d.setY(d.getY() + d.getVy());
+
+            d.setVx(d.getVx() * 0.98);
+            d.setVy(d.getVy() * 0.98);
+
+            // bordas
+            if (d.getX() < r) {
+                d.setX(r);
+                d.setVx(-d.getVx() * 0.9);
+            }
+
+            if (d.getX() > largura - r) {
+                d.setX(largura - r);
+                d.setVx(-d.getVx() * 0.9);
+            }
+
+            if (d.getY() < r) {
+                d.setY(r);
+                d.setVy(-d.getVy() * 0.9);
+            }
+
+            if (d.getY() > altura - r) {
+                d.setY(altura - r);
+                d.setVy(-d.getVy() * 0.9);
+            }
+        }
+
+        // colisão simples
+        for (int i = 0; i < discos.size(); i++) {
+            for (int j = i + 1; j < discos.size(); j++) {
+
+                Disco a = discos.get(i);
+                Disco b = discos.get(j);
+
+                double dx = b.getX() - a.getX();
+                double dy = b.getY() - a.getY();
+
+                double dist = Math.sqrt(dx * dx + dy * dy);
+                double min = r * 2;
+
+                if (dist > 0 && dist < min) {
+
+                    double nx = dx / dist;
+                    double ny = dy / dist;
+
+                    double overlap = min - dist;
+
+                    a.setX(a.getX() - nx * overlap / 2);
+                    a.setY(a.getY() - ny * overlap / 2);
+
+                    b.setX(b.getX() + nx * overlap / 2);
+                    b.setY(b.getY() + ny * overlap / 2);
+
+                    double dvx = b.getVx() - a.getVx();
+                    double dvy = b.getVy() - a.getVy();
+
+                    double p = dvx * nx + dvy * ny;
+
+                    if (p < 0) {
+                        a.setVx(a.getVx() + p * nx);
+                        a.setVy(a.getVy() + p * ny);
+
+                        b.setVx(b.getVx() - p * nx);
+                        b.setVy(b.getVy() - p * ny);
+                    }
+                }
+            }
+        }
+    }
+
+    private void resolverColisoes(List<Disco> discos) {
+
+        for (int i = 0; i < discos.size(); i++) {
+            for (int j = i + 1; j < discos.size(); j++) {
+
+                Disco a = discos.get(i);
+                Disco b = discos.get(j);
+
+                double dx = b.getX() - a.getX();
+                double dy = b.getY() - a.getY();
+
+                double dist = Math.sqrt(dx * dx + dy * dy);
+                double min = RAIO_DISCO * 2;
+
+                if (dist < min && dist > 0) {
+
+                    double nx = dx / dist;
+                    double ny = dy / dist;
+
+                    double overlap = min - dist;
+
+                    a.setX(a.getX() - nx * overlap / 2);
+                    b.setX(b.getX() + nx * overlap / 2);
+
+                    a.setY(a.getY() - ny * overlap / 2);
+                    b.setY(b.getY() + ny * overlap / 2);
+
+                    double dvx = b.getVx() - a.getVx();
+                    double dvy = b.getVy() - a.getVy();
+
+                    double p = dvx * nx + dvy * ny;
+
+                    if (p < 0) {
+                        a.setVx(a.getVx() + p * nx);
+                        a.setVy(a.getVy() + p * ny);
+
+                        b.setVx(b.getVx() - p * nx);
+                        b.setVy(b.getVy() - p * ny);
+                    }
+                }
+            }
+        }
+    }
+
+    private void broadcastEstado(Sala sala) throws IOException {
+        MensagemDTO dto = MensagemDTO.builder()
+                .tipo("ESTADO")
+                .estado(sala.getEstado())
+                .build();
+
+        enviarParaSala(sala, dto);
+    }
+
+    private void enviarEstado(Sala sala) throws IOException {
+
+        if (sala == null || sala.getEstado() == null) return;
+
+        MensagemDTO dto = MensagemDTO.builder()
+                .tipo("ESTADO")
+                .estado(sala.getEstado())
+                .build();
+
+        enviarParaSala(sala, dto);
+    }
+
+    public void stepAllSalas() throws IOException {
+        for (Sala sala : salas.values()) {
+            step(sala);
+            try {
+                enviarEstado(sala);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 }

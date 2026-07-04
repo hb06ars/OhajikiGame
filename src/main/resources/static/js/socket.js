@@ -60,6 +60,10 @@ socket.onmessage = (e) => {
         case "FIM_JOGO":
             fimJogo(resposta);
             break;
+
+        case "ESTADO":
+            atualizarEstado(resposta.estado);
+            break;
     }
 
 };
