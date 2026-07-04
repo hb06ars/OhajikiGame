@@ -39,6 +39,10 @@ socket.onmessage = (e) => {
         case "REMOVER_DISCOS":
             removerDiscos(resposta);
             break;
+
+        case "ATUALIZAR_PONTOS":
+            atualizarPontos(resposta);
+            break;
     }
 
 };

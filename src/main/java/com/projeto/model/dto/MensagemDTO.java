@@ -22,5 +22,7 @@ public class MensagemDTO {
     private Integer vy;
 
     private List<Integer> discosRemovidos;
+    private Integer pontosAzul;
+    private Integer pontosVermelho;
 
 }

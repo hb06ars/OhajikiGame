@@ -438,6 +438,13 @@ function startGame() {
                 }
             }
 
+            socket.send(JSON.stringify({
+                tipo: "ATUALIZAR_PONTOS",
+                sala: Partida.getSala(),
+                pontosAzul: pontosAzul,
+                pontosVermelho: pontosVermelho
+            }));
+
             if (!bateuErrado) {
                 const removidos = [...discosPontuados];
                 discs = discs.filter(d => !discosPontuados.has(d.id));
@@ -589,6 +596,14 @@ function startGame() {
         }
         discs = discs.filter(d => !mensagem.discosRemovidos.includes(d.id));
         verificarVencedor();
+    }
+
+    window.atualizarPontos = function (mensagem) {
+        pontosAzul = mensagem.pontosAzul;
+        pontosVermelho = mensagem.pontosVermelho;
+        document.getElementById("pontosAzul").innerHTML = pontosAzul;
+        document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
+
     }
 
 

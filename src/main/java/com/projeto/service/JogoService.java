@@ -48,6 +48,12 @@ public class JogoService {
             case "REMOVER_DISCOS":
                 removerDiscos(session, dto);
                 break;
+
+            case "ATUALIZAR_PONTOS":
+                atualizarPontos(session, dto);
+                break;
+
+
         }
     }
 
@@ -208,5 +214,12 @@ public class JogoService {
         enviarParaSala(sala, dto);
     }
 
+    private void atualizarPontos(WebSocketSession session, MensagemDTO dto) throws IOException {
+        Sala sala = salas.get(dto.getSala());
+        if (sala == null) {
+            return;
+        }
+        enviarParaSala(sala, dto);
+    }
 
 }
