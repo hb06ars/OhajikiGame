@@ -13,6 +13,14 @@ socket.onmessage = (e) => {
         case "CONECTADO":
             break;
 
+        case "SALA_INEXISTENTE":
+            document.getElementById("statusSala").innerHTML = "A sala não existe";
+            break;
+
+        case "SALA_OCUPADA":
+            document.getElementById("statusSala").innerHTML = "A sala já está ocupada.";
+            break;
+
         case "SALA_CRIADA":
             document.getElementById("codigoSala").value = resposta.sala;
             document.getElementById("statusSala").innerHTML =
@@ -33,7 +41,6 @@ socket.onmessage = (e) => {
             break;
 
         case "JOGADA":
-            console.log("JOGADA");
             window.aplicarJogada(resposta);
             break;
 

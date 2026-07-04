@@ -1,5 +1,6 @@
 package com.projeto.service;
 
+import com.projeto.model.dto.AlertaDTO;
 import com.projeto.model.dto.Disco;
 import com.projeto.model.dto.EstadoPartida;
 import com.projeto.model.dto.MensagemDTO;
@@ -101,7 +102,16 @@ public class JogoService {
 
     public void entrarSala(WebSocketSession session, String codigo) throws IOException {
         Sala sala = salas.get(codigo);
-        if (sala == null) {
+        if (sala == null || (sala.getVermelho() != null && !sala.getAzul().getId().equals(sala.getVermelho().getId()))) {
+            if (sala == null) {
+                session.sendMessage(new TextMessage(jsonUtils.toJson(AlertaDTO.builder()
+                        .tipo(StatusEnum.SALA_INEXISTENTE)
+                        .mensagem("A sala não existe!").build())));
+            } else {
+                session.sendMessage(new TextMessage(jsonUtils.toJson(AlertaDTO.builder()
+                        .tipo(StatusEnum.SALA_OCUPADA)
+                        .mensagem("A sala já está ocupada!").build())));
+            }
             return;
         }
         sala.setVermelho(session);

@@ -6,5 +6,7 @@ public enum StatusEnum {
     SALA_CRIADA,
     PARTIDA_INICIADA,
     ENTRAR_SALA,
-    FIM_JOGO
+    FIM_JOGO,
+    SALA_INEXISTENTE,
+    SALA_OCUPADA
 }
