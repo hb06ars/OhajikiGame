@@ -106,14 +106,22 @@ public class JogoService {
         }
         sala.setVermelho(session);
 
-        MensagemDTO resposta = MensagemDTO.builder()
+        MensagemDTO azul = MensagemDTO.builder()
                 .tipo(StatusEnum.PARTIDA_INICIADA.name())
                 .sala(codigo)
-                .mensagem("Partida iniciada")
                 .estado(sala.getEstado())
+                .jogador("AZUL")
                 .build();
 
-        enviarParaSala(sala, resposta);
+        MensagemDTO vermelho = MensagemDTO.builder()
+                .tipo(StatusEnum.PARTIDA_INICIADA.name())
+                .sala(codigo)
+                .estado(sala.getEstado())
+                .jogador("VERMELHO")
+                .build();
+
+        sala.getAzul().sendMessage(new TextMessage(jsonUtils.toJson(azul)));
+        sala.getVermelho().sendMessage(new TextMessage(jsonUtils.toJson(vermelho)));
 
     }
 

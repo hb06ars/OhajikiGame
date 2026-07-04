@@ -20,8 +20,9 @@ socket.onmessage = (e) => {
             break;
 
         case "PARTIDA_INICIADA":
-            Partida.setEstado(resposta.estado);
             Partida.setSala(resposta.sala);
+            Partida.setEstado(resposta.estado);
+            Partida.setJogador(resposta.jogador);
             mostrarJogo();
             window.iniciarJogoOnline();
             break;

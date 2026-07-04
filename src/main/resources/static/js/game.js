@@ -148,6 +148,10 @@ function startGame() {
             return;
         }
 
+        if (Partida.getJogador() !== vez) {
+            return;
+        }
+
         sel = null;
 
         for (let d of discs) {
