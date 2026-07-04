@@ -8,20 +8,7 @@
 
 <body>
 
-<!-- ==================== LOBBY ==================== -->
-<div id="telaLobby">
-    <h1>🎯 Ohajiki Offline</h1>
-    <div class="painelLobby">
-        <button onclick="entrarSala()">
-            Jogar
-        </button>
-        <br><br>
-    </div>
-
-</div>
-
 <!-- ==================== JOGO ==================== -->
-
 <div id="telaJogo" style="display:none;">
     <div id="placar">
             <span>🔵 Azul:
@@ -36,6 +23,9 @@
             <span id="vezJogador">
                 Vez: 🔵 Azul
             </span>
+    </div>
+    <div id="voltar" onclick="redirecionar()" >
+        <span>VOLTAR</span>
     </div>
     <canvas id="c"></canvas>
 </div>

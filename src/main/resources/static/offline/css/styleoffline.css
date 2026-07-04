@@ -138,6 +138,25 @@ canvas {
     pointer-events: none;
 }
 
+
+
+#voltar {
+    position: absolute;
+    top: 15px;
+    left: 90%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 30px;
+    align-items: center;
+    padding: 12px 22px;
+    color: white;
+    font-size: clamp(28px, 3vw, 34px);
+    font-weight: bold;
+    background: rgba(0, 0, 0, .45);
+    border-radius: 14px;
+    z-index: 1000;
+}
+
 /* -------- CELULAR -------- */
 
 @media (max-width: 768px) {

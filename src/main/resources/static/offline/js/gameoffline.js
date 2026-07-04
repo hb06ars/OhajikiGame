@@ -522,9 +522,10 @@ function startGame() {
         preenchendoVez();
     }
 
-    function entrarSala() {
-        document.getElementById("telaLobby").style.display = "none";
-        document.getElementById("telaJogo").style.display = "block";
+    document.getElementById("telaJogo").style.display = "block";
+
+    function redirecionar(){
+        window.location.href='/';
     }
 
 // FIM FORA DO START GAME ------------------------------------------------
