@@ -57,6 +57,8 @@ function startGame() {
         c.height = innerHeight;
     }
 
+
+
     onresize = rs;
     rs();
 

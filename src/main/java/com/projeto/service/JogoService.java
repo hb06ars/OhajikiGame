@@ -28,8 +28,7 @@ public class JogoService {
     private final JsonUtils jsonUtils;
 
     private static final double CENTRO_X = 500;
-    private static final double CENTRO_Y = 500;
-    private static final double RAIO_MESA = 400;
+    private static final double CENTRO_Y = 800;
     private static final double RAIO_DISCO = 48;
 
     public void processarMensagem(WebSocketSession session, MensagemDTO dto) throws IOException {
@@ -207,17 +206,21 @@ public class JogoService {
 
     private Ponto gerarPosicao(List<Disco> discos) {
         while (true) {
-            double angulo = Math.random() * Math.PI * 2;
-            double distancia = Math.random() * (RAIO_MESA - 50);
+            double margemLateral = 30;
+            double margemSuperior = 100;
+            double margemInferior = 30;
 
-            double x = CENTRO_X + Math.cos(angulo) * distancia;
-            double y = CENTRO_Y + Math.sin(angulo) * distancia;
+            double larguraMesa = CENTRO_X * 2;
+            double alturaMesa = CENTRO_Y * 2;
+
+            double x = margemLateral + Math.random() * (larguraMesa - margemLateral * 2);
+            double y = margemSuperior + Math.random() * (alturaMesa - margemSuperior - margemInferior);
 
             boolean valido = true;
 
             for (Disco d : discos) {
                 double dist = Math.hypot(x - d.getX(), y - d.getY());
-                if (dist < RAIO_DISCO * 2 + 30) {
+                if (dist < RAIO_DISCO * 2 + 70) {
                     valido = false;
                     break;
                 }
