@@ -105,7 +105,7 @@ canvas {
 #placar {
     position: absolute;
     top: 15px;
-    left: 55%;
+    left: 65%;
     transform: translateX(-50%);
     display: flex;
     gap: 30px;

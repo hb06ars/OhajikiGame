@@ -539,10 +539,21 @@ function startGame() {
     }
 
     function preenchendoVez(){
-        if(vez == 'AZUL')
-            document.getElementById("vezJogador").innerHTML = 'Vez: 🔵 Azul';
-        else
-            document.getElementById("vezJogador").innerHTML = 'Vez: 🔴 Vermelho';
+
+        const info = document.getElementById("infoJogador");
+
+        if (Partida.getJogador() === vez) {
+            info.innerHTML =
+                "🎯 Você é " +
+                (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
+                " SUA VEZ!";
+        } else {
+            info.innerHTML =
+                "⏳ Você é " +
+                (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
+                " AGUARDE!";
+        }
+
     }
 
     function mudarVez() {
@@ -588,6 +599,7 @@ function startGame() {
 
     // INICIAR JOGO ONLINE
     window.iniciarJogoOnline = function () {
+
         if (imgBlue.complete && imgRed.complete) {
             startGame();
         } else {
@@ -619,8 +631,15 @@ function startGame() {
     }
 
     window.fimJogo = function (mensagem) {
-        alert("🏆 Vitória do " + mensagem.vencedor + "!");
+        const meuTime = Partida.getJogador();
+
+        if (mensagem.vencedor === meuTime) {
+            alert("🎉 Parabéns! Você venceu!");
+        } else {
+            alert("😢 Você perdeu!");
+        }
         location.reload();
+
     }
 
 
