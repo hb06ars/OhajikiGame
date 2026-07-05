@@ -9,7 +9,6 @@ import com.projeto.model.dto.Sala;
 import com.projeto.model.enums.StatusEnum;
 import com.projeto.utils.JsonUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -31,6 +30,10 @@ public class JogoService {
     private static final double CENTRO_X = 500;
     private static final double CENTRO_Y = 800;
     private static final double RAIO_DISCO = 48;
+    private static final String VERMELHO = "VERMELHO";
+    private static final String AZUL = "AZUL";
+    private static final Integer DISCOS_ADICIONAR = 5;
+    private static final Integer VELOCIDADE_MAXIMA = 150;
 
     public void processarMensagem(WebSocketSession session, MensagemDTO dto) throws IOException {
         switch (dto.getTipo()) {
@@ -46,6 +49,9 @@ public class JogoService {
                 jogar(session, dto);
                 break;
 
+            default:
+                break;
+
         }
     }
 
@@ -57,7 +63,7 @@ public class JogoService {
         sala.setAzul(session);
 
         EstadoPartida estado = new EstadoPartida();
-        estado.setVez("AZUL");
+        estado.setVez(AZUL);
         estado.setPontosAzul(0);
         estado.setPontosVermelho(0);
         estado.setJogando(false);
@@ -74,7 +80,6 @@ public class JogoService {
                 .build();
 
         System.out.println("Sala criada: " + codigo);
-
         session.sendMessage(new TextMessage(jsonUtils.toJson(resposta)));
     }
 
@@ -98,14 +103,14 @@ public class JogoService {
                 .tipo(StatusEnum.PARTIDA_INICIADA.name())
                 .sala(codigo)
                 .estado(sala.getEstado())
-                .jogador("AZUL")
+                .jogador(AZUL)
                 .build();
 
         MensagemDTO vermelho = MensagemDTO.builder()
                 .tipo(StatusEnum.PARTIDA_INICIADA.name())
                 .sala(codigo)
                 .estado(sala.getEstado())
-                .jogador("VERMELHO")
+                .jogador(VERMELHO)
                 .build();
 
         sala.getAzul().sendMessage(new TextMessage(jsonUtils.toJson(azul)));
@@ -114,7 +119,6 @@ public class JogoService {
     }
 
     private void enviarParaSala(Sala sala, MensagemDTO dto) throws IOException {
-
         if (sala == null) return;
 
         String json = jsonUtils.toJson(dto);
@@ -129,7 +133,6 @@ public class JogoService {
     }
 
     private void jogar(WebSocketSession session, MensagemDTO dto) {
-
         Sala sala = salas.get(dto.getSala());
 
         if (sala == null) return;
@@ -141,8 +144,8 @@ public class JogoService {
         }
 
         String jogador = session.getId().equals(sala.getAzul().getId())
-                ? "AZUL"
-                : "VERMELHO";
+                ? AZUL
+                : VERMELHO;
 
         if (!estado.getVez().equals(jogador)) {
             return;
@@ -156,7 +159,7 @@ public class JogoService {
 
         if (disco == null) return;
 
-        String meuTime = jogador.equals("AZUL") ? "blue" : "red";
+        String meuTime = jogador.equals(AZUL) ? "blue" : "red";
 
         if (!disco.getTeam().equals(meuTime)) {
             return;
@@ -164,7 +167,7 @@ public class JogoService {
 
         double velocidade = Math.hypot(dto.getVx(), dto.getVy());
 
-        if (velocidade > 150) { // VELOCIDADE MAXIMA = 150
+        if (velocidade > VELOCIDADE_MAXIMA) {
             return;
         }
 
@@ -183,8 +186,8 @@ public class JogoService {
     private List<Disco> criarDiscos() {
         List<Disco> discos = new ArrayList<>();
         int id = 1;
-        id = adicionarDiscos(id, discos, 5, "blue");
-        adicionarDiscos(id, discos, 5, "red");
+        id = adicionarDiscos(id, discos, DISCOS_ADICIONAR, "blue");
+        adicionarDiscos(id, discos, DISCOS_ADICIONAR, "red");
         return discos;
 
     }
@@ -251,7 +254,7 @@ public class JogoService {
 
             MensagemDTO dto = MensagemDTO.builder()
                     .tipo(StatusEnum.FIM_JOGO.name())
-                    .vencedor("AZUL")
+                    .vencedor(AZUL)
                     .build();
 
             enviarParaSala(sala, dto);
@@ -262,67 +265,22 @@ public class JogoService {
 
             MensagemDTO dto = MensagemDTO.builder()
                     .tipo(StatusEnum.FIM_JOGO.name())
-                    .vencedor("VERMELHO")
+                    .vencedor(VERMELHO)
                     .build();
 
             enviarParaSala(sala, dto);
         }
     }
 
-    private void trocarVez(EstadoPartida estado) {
-        if ("AZUL".equals(estado.getVez())) {
-            estado.setVez("VERMELHO");
-        } else {
-            estado.setVez("AZUL");
-        }
-    }
-
-    private void atualizarPontuacao(EstadoPartida estado) {
-
-        long pontos = estado.getDiscos().stream()
-                .filter(Disco::isRemover)
-                .count();
-
-        if (pontos == 0) {
-            return;
-        }
-
-        if ("AZUL".equals(estado.getVez())) {
-            estado.setPontosAzul(
-                    estado.getPontosAzul() + (int) pontos
-            );
-        } else {
-            estado.setPontosVermelho(
-                    estado.getPontosVermelho() + (int) pontos
-            );
-        }
-
-    }
-
-    @Scheduled(fixedRate = 16) // ~60fps
-    public void loop() throws IOException {
-        for (Sala sala : salas.values()) {
-            step(sala);
-            enviarEstado(sala);
-        }
-    }
-
     private void step(Sala sala) throws IOException {
-
         EstadoPartida estado = sala.getEstado();
         List<Disco> discos = estado.getDiscos();
-
-        double largura = 1000;
-        double altura = 1600;
-        double r = 48;
 
         // movimento
         movimentarDiscos(discos);
 
         // colisão
         resolverColisoes(estado);
-
-        String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
 
         boolean existeMovimento = discos.stream()
                 .anyMatch(d -> Math.abs(d.getVx()) > 0.05 || Math.abs(d.getVy()) > 0.05);
@@ -340,17 +298,6 @@ public class JogoService {
         if (!existeMovimento && !(removeuAzul && removeuVermelho)) {
             discos.removeIf(Disco::isRemover);
         }
-    }
-
-
-
-    private void broadcastEstado(Sala sala) throws IOException {
-        MensagemDTO dto = MensagemDTO.builder()
-                .tipo("ESTADO")
-                .estado(sala.getEstado())
-                .build();
-
-        enviarParaSala(sala, dto);
     }
 
     private void enviarEstado(Sala sala) throws IOException {
@@ -486,7 +433,7 @@ public class JogoService {
 
         estado.setAcertouAlgumaPeca(true);
 
-        String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
+        String timeDaVez = estado.getVez().equals(AZUL) ? "blue" : "red";
 
         if (!outroDisco.getTeam().equals(timeDaVez)) {
             estado.setBateuErrado(true);
@@ -509,7 +456,7 @@ public class JogoService {
 
         } else {
 
-            if (estado.getVez().equals("AZUL")) {
+            if (estado.getVez().equals(AZUL)) {
                 estado.setPontosAzul(
                         estado.getPontosAzul()
                                 + estado.getDiscosPontuados().size());
@@ -528,15 +475,14 @@ public class JogoService {
         if (estado.isBateuErrado() || !estado.isAcertouAlgumaPeca()) {
 
             estado.setVez(
-                    estado.getVez().equals("AZUL")
-                            ? "VERMELHO"
-                            : "AZUL");
+                    estado.getVez().equals(AZUL)
+                            ? VERMELHO
+                            : AZUL);
         }
 
         estado.limparJogada();
         estado.setJogando(false);
     }
-
 
 
 }

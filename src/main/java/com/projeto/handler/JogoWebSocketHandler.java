@@ -33,7 +33,7 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        MensagemDTO dto = mapper.readValue(message.getPayload(), MensagemDTO.class);
+        var dto = mapper.readValue(message.getPayload(), MensagemDTO.class);
         jogoService.processarMensagem(session, dto);
     }
 
