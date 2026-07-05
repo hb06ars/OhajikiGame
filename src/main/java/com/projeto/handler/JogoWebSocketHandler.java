@@ -3,7 +3,7 @@ package com.projeto.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.projeto.model.dto.MensagemDTO;
 import com.projeto.model.enums.StatusEnum;
-import com.projeto.service.JogoService;
+import com.projeto.service.GameService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -13,11 +13,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class JogoWebSocketHandler extends TextWebSocketHandler {
 
-    private final JogoService jogoService;
+    private final GameService gameService;
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public JogoWebSocketHandler(JogoService jogoService) {
-        this.jogoService = jogoService;
+    public JogoWebSocketHandler(GameService gameService) {
+        this.gameService = gameService;
     }
 
     @Override
@@ -34,7 +34,7 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         var dto = mapper.readValue(message.getPayload(), MensagemDTO.class);
-        jogoService.processarMensagem(session, dto);
+        gameService.processarMensagem(session, dto);
     }
 
     @Override

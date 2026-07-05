@@ -8,14 +8,14 @@ import java.io.IOException;
 @Component
 public class GameLoop {
 
-    private final JogoService jogoService;
+    private final GameService gameService;
 
-    public GameLoop(JogoService jogoService) {
-        this.jogoService = jogoService;
+    public GameLoop(GameService gameService) {
+        this.gameService = gameService;
     }
 
     @Scheduled(fixedRate = 16)
     public void loop() throws IOException {
-        jogoService.stepAllSalas();
+        gameService.stepAllSalas();
     }
 }
