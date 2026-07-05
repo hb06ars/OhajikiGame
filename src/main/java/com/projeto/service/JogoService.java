@@ -162,6 +162,16 @@ public class JogoService {
             return;
         }
 
+        double velocidade = Math.hypot(dto.getVx(), dto.getVy());
+
+        if (velocidade > 150) { // VELOCIDADE MAXIMA = 150
+            return;
+        }
+
+        if (disco.isRemover()) {
+            return;
+        }
+
         estado.limparJogada();
         estado.setJogando(true);
         estado.setDiscoJogado(disco.getId());
