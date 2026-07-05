@@ -19,64 +19,73 @@
 }
 
 #telaLobby{
-    position:fixed;
-    inset:0;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
+    background: url("../img/chao.png") center center / cover no-repeat;
 
-    background:url("../img/chao.png") center center / cover no-repeat;
+    padding: 20px;
 }
 
 #telaLobby h1{
-    color:white;
-    font-family:Arial, Helvetica, sans-serif;
-    font-size:48px;
-    margin-bottom:30px;
-    text-shadow:2px 2px 8px black;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+
+    font-size: clamp(90px, 6vw, 64px);
+    margin-bottom: 30px;
+
+    text-shadow: 2px 2px 8px black;
 }
 
 .painelLobby{
-    width:380px;
-    max-width:90%;
-    padding:30px;
-    border-radius:20px;
-    background:rgba(10,20,35,.85);
-    border:2px solid rgba(255,255,255,.15);
+    width: 80%;
+    padding: clamp(20px, 4vw, 40px);
+    border-radius: 20px;
+
+    background: rgba(10,20,35,.85);
+    border: 2px solid rgba(255,255,255,.15);
     box-shadow: 0 0 30px rgba(0,0,0,.6);
-    text-align:center;
-    backdrop-filter:blur(6px);
+
+    text-align: center;
+    backdrop-filter: blur(6px);
 }
 
 .painelLobby input{
-    width:100%;
-    box-sizing:border-box;
-    padding:14px;
-    border:none;
-    border-radius:10px;
-    font-size:18px;
-    margin-bottom:15px;
-    text-align:center;
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: clamp(25px, 2.5vw, 16px);
+    border: none;
+    border-radius: 10px;
+
+    font-size: clamp(35px, 2.5vw, 18px);
+
+    margin-bottom: 15px;
+    text-align: center;
 }
 
 .painelLobby button{
-    width:100%;
-    padding:14px;
-    margin-top:10px;
-    border:none;
-    border-radius:10px;
-    font-size:18px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:.2s;
+    width: 100%;
+    padding: clamp(25px, 2.5vw, 16px);
+
+    border: none;
+    border-radius: 10px;
+
+    font-size: clamp(35px, 2.5vw, 18px);
+    font-weight: bold;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: .2s;
 }
 
 #statusSala{
     margin-top:20px;
     color:#DDD;
-    font-size:18px;
+    font-size:38px;
     min-height:24px;
 }
 

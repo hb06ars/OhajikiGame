@@ -12,16 +12,16 @@ socket.onmessage = (e) => {
             break;
 
         case "SALA_INEXISTENTE":
-            document.getElementById("statusSala").innerHTML = "A sala não existe";
+            document.getElementById("statusSala").innerHTML = "<span style='color:#e53935'>A sala não existe.</span>";
             break;
 
         case "SALA_OCUPADA":
-            document.getElementById("statusSala").innerHTML = "A sala já está ocupada.";
+            document.getElementById("statusSala").innerHTML = "<span style='color:#e53935'>A sala já está ocupada.</span>";
             break;
 
         case "SALA_CRIADA":
             document.getElementById("codigoSala").value = resposta.sala;
-            document.getElementById("statusSala").innerHTML = "Sala criada: " + resposta.sala + ", aguarde.";
+            document.getElementById("statusSala").innerHTML = "<span style='color:#abffab'>SALA CRIADA: " + resposta.sala + ", AGUARDE.</span>";
             document.getElementById("codigoSala").style.display = "none";
             document.getElementById("btEntrarSala").style.display = "none";
             break;
@@ -56,7 +56,7 @@ function entrarSala() {
     const codigo = document.getElementById("codigoSala").value.trim();
     if (codigo.length == 0) {
         document.getElementById("statusSala").innerHTML =
-            "Informe o código da sala.";
+            "<span style='color:#e53935'>Informe o código da sala.</span>";
         return;
     }
     socket.send(JSON.stringify({
