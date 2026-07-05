@@ -330,6 +330,7 @@ public class JogoService {
         }
 
         // colisão
+        // colisão
         for (int i = 0; i < discos.size(); i++) {
             for (int j = i + 1; j < discos.size(); j++) {
 
@@ -368,31 +369,49 @@ public class JogoService {
                         b.setVy(b.getVy() - p * ny);
                     }
 
-                    String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
+                    if (estado.getDiscoJogado() != null) {
 
-                    if (estado.getDiscoJogado() == null || a.getId() != estado.getDiscoJogado()) {
-                        if (a.getTeam().equals(timeDaVez)) {
-                            a.setRemover(true);
-                        }
-                    }
+                        if (a.getId() == estado.getDiscoJogado()) {
 
-                    if (estado.getDiscoJogado() == null || b.getId() != estado.getDiscoJogado()) {
-                        if (b.getTeam().equals(timeDaVez)) {
                             b.setRemover(true);
+
+                        } else if (b.getId() == estado.getDiscoJogado()) {
+
+                            a.setRemover(true);
                         }
                     }
                 }
             }
         }
 
+        String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
+
         boolean existeMovimento = discos.stream()
                 .anyMatch(d -> Math.abs(d.getVx()) > 0.05 || Math.abs(d.getVy()) > 0.05);
 
         if (!existeMovimento) {
-            discos.removeIf(Disco::isRemover);
+
+            boolean removeuErrado = discos.stream()
+                    .anyMatch(d -> d.isRemover() && !d.getTeam().equals(timeDaVez));
+
+            if (!removeuErrado) {
+                discos.removeIf(Disco::isRemover);
+            } else {
+                discos.forEach(d -> d.setRemover(false));
+            }
+
             estado.setDiscoJogado(null);
         }
 
+        boolean removeuAzul = discos.stream()
+                .anyMatch(d -> d.isRemover() && "blue".equals(d.getTeam()));
+
+        boolean removeuVermelho = discos.stream()
+                .anyMatch(d -> d.isRemover() && "red".equals(d.getTeam()));
+
+        if (!existeMovimento && !(removeuAzul && removeuVermelho)) {
+            discos.removeIf(Disco::isRemover);
+        }
     }
 
 
