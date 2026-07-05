@@ -218,7 +218,7 @@ public class JogoService {
                 .filter(d -> "red".equals(d.getTeam()))
                 .count();
 
-        if (azuis == 1) {
+        if (azuis <= 1) {
 
             MensagemDTO dto = MensagemDTO.builder()
                     .tipo(StatusEnum.FIM_JOGO.name())
@@ -229,7 +229,7 @@ public class JogoService {
             return;
         }
 
-        if (vermelhos == 1) {
+        if (vermelhos <= 1) {
 
             MensagemDTO dto = MensagemDTO.builder()
                     .tipo(StatusEnum.FIM_JOGO.name())
@@ -437,10 +437,18 @@ public class JogoService {
         Disco discoLancado = null;
         Disco outroDisco = null;
 
-        if (a.getId() == estado.getDiscoJogado()) {
+        boolean aEhOrigem =
+                a.getId() == estado.getDiscoJogado()
+                        || estado.getDiscosPontuados().contains(a.getId());
+
+        boolean bEhOrigem =
+                b.getId() == estado.getDiscoJogado()
+                        || estado.getDiscosPontuados().contains(b.getId());
+
+        if (aEhOrigem) {
             discoLancado = a;
             outroDisco = b;
-        } else if (b.getId() == estado.getDiscoJogado()) {
+        } else if (bEhOrigem) {
             discoLancado = b;
             outroDisco = a;
         } else {
@@ -453,6 +461,8 @@ public class JogoService {
 
         if (!outroDisco.getTeam().equals(timeDaVez)) {
             estado.setBateuErrado(true);
+            estado.getDiscosPontuados().clear();
+            estado.getDiscos().forEach(d -> d.setRemover(false));
             return;
         }
 
@@ -462,16 +472,10 @@ public class JogoService {
     }
 
     private void finalizarJogada(Sala sala) throws IOException {
-
         EstadoPartida estado = sala.getEstado();
-
         List<Disco> discos = estado.getDiscos();
 
-        String timeDaVez =
-                estado.getVez().equals("AZUL") ? "blue" : "red";
-
         if (estado.isBateuErrado()) {
-
             discos.forEach(d -> d.setRemover(false));
 
         } else {
@@ -492,13 +496,18 @@ public class JogoService {
 
         verificarVencedor(sala);
 
-        estado.setVez(
-                estado.getVez().equals("AZUL")
-                        ? "VERMELHO"
-                        : "AZUL");
+        if (estado.isBateuErrado() || !estado.isAcertouAlgumaPeca()) {
+
+            estado.setVez(
+                    estado.getVez().equals("AZUL")
+                            ? "VERMELHO"
+                            : "AZUL");
+        }
 
         estado.limparJogada();
         estado.setJogando(false);
     }
+
+
 
 }
