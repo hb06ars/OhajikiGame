@@ -156,6 +156,12 @@ public class JogoService {
 
         if (disco == null) return;
 
+        String meuTime = jogador.equals("AZUL") ? "blue" : "red";
+
+        if (!disco.getTeam().equals(meuTime)) {
+            return;
+        }
+
         estado.limparJogada();
         estado.setJogando(true);
         estado.setDiscoJogado(disco.getId());
