@@ -13,19 +13,21 @@ import java.util.List;
 @AllArgsConstructor
 public class MensagemDTO {
     private String tipo;
+
     private String sala;
-    private String mensagem;
-    private Integer discoId;
+
     private EstadoPartida estado;
 
-    private Integer vx;
-    private Integer vy;
+    private Integer discoId;
 
-    private List<Integer> discosRemovidos;
-    private Integer pontosAzul;
-    private Integer pontosVermelho;
-    private String vez;
+    private Double vx;
+
+    private Double vy;
+
     private String jogador;
+
     private String vencedor;
+
+    private String mensagem;
 
 }

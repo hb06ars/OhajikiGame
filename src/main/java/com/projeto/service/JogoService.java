@@ -46,15 +46,6 @@ public class JogoService {
                 jogar(session, dto);
                 break;
 
-            case "ATUALIZAR_PONTOS":
-                atualizarPontos(session, dto);
-                break;
-
-            case "MUDAR_VEZ":
-                mudarVez(session, dto);
-                break;
-
-
         }
     }
 
@@ -153,7 +144,11 @@ public class JogoService {
 
         disco.setVx(dto.getVx());
         disco.setVy(dto.getVy());
-        sala.getEstado().setDiscoJogado(disco.getId());
+
+        EstadoPartida estado = sala.getEstado();
+        estado.limparJogada();
+        estado.setJogando(true);
+        estado.setDiscoJogado(disco.getId());
     }
 
     private List<Disco> criarDiscos() {
@@ -214,43 +209,6 @@ public class JogoService {
         }
     }
 
-    private void removerDiscos(WebSocketSession session, MensagemDTO dto) throws IOException {
-
-        Sala sala = salas.get(dto.getSala());
-
-        if (sala == null) {
-            return;
-        }
-
-        // Remove do estado da partida
-        sala.getEstado().getDiscos().removeIf(
-                disco -> dto.getDiscosRemovidos().contains(disco.getId())
-        );
-
-        // Verifica se alguém venceu
-        verificarVencedor(sala);
-
-        // Sincroniza os clientes
-        enviarParaSala(sala, dto);
-
-    }
-
-    private void atualizarPontos(WebSocketSession session, MensagemDTO dto) throws IOException {
-        Sala sala = salas.get(dto.getSala());
-        if (sala == null) {
-            return;
-        }
-        enviarParaSala(sala, dto);
-    }
-
-    private void mudarVez(WebSocketSession session, MensagemDTO dto) throws IOException {
-        Sala sala = salas.get(dto.getSala());
-        if (sala == null) {
-            return;
-        }
-        enviarParaSala(sala, dto);
-    }
-
     private void verificarVencedor(Sala sala) throws IOException {
         long azuis = sala.getEstado().getDiscos().stream()
                 .filter(d -> "blue".equals(d.getTeam()))
@@ -282,6 +240,36 @@ public class JogoService {
         }
     }
 
+    private void trocarVez(EstadoPartida estado) {
+        if ("AZUL".equals(estado.getVez())) {
+            estado.setVez("VERMELHO");
+        } else {
+            estado.setVez("AZUL");
+        }
+    }
+
+    private void atualizarPontuacao(EstadoPartida estado) {
+
+        long pontos = estado.getDiscos().stream()
+                .filter(Disco::isRemover)
+                .count();
+
+        if (pontos == 0) {
+            return;
+        }
+
+        if ("AZUL".equals(estado.getVez())) {
+            estado.setPontosAzul(
+                    estado.getPontosAzul() + (int) pontos
+            );
+        } else {
+            estado.setPontosVermelho(
+                    estado.getPontosVermelho() + (int) pontos
+            );
+        }
+
+    }
+
     @Scheduled(fixedRate = 16) // ~60fps
     public void loop() throws IOException {
         for (Sala sala : salas.values()) {
@@ -290,7 +278,7 @@ public class JogoService {
         }
     }
 
-    private void step(Sala sala) {
+    private void step(Sala sala) throws IOException {
 
         EstadoPartida estado = sala.getEstado();
         List<Disco> discos = estado.getDiscos();
@@ -300,107 +288,18 @@ public class JogoService {
         double r = 48;
 
         // movimento
-        for (Disco d : discos) {
-
-            d.setX(d.getX() + d.getVx());
-            d.setY(d.getY() + d.getVy());
-
-            d.setVx(d.getVx() * 0.98);
-            d.setVy(d.getVy() * 0.98);
-
-            if (d.getX() < r) {
-                d.setX(r);
-                d.setVx(-d.getVx() * 0.9);
-            }
-
-            if (d.getX() > largura - r) {
-                d.setX(largura - r);
-                d.setVx(-d.getVx() * 0.9);
-            }
-
-            if (d.getY() < r) {
-                d.setY(r);
-                d.setVy(-d.getVy() * 0.9);
-            }
-
-            if (d.getY() > altura - r) {
-                d.setY(altura - r);
-                d.setVy(-d.getVy() * 0.9);
-            }
-        }
+        movimentarDiscos(discos);
 
         // colisão
-        // colisão
-        for (int i = 0; i < discos.size(); i++) {
-            for (int j = i + 1; j < discos.size(); j++) {
-
-                Disco a = discos.get(i);
-                Disco b = discos.get(j);
-
-                double dx = b.getX() - a.getX();
-                double dy = b.getY() - a.getY();
-
-                double dist = Math.sqrt(dx * dx + dy * dy);
-                double min = r * 2;
-
-                if (dist > 0 && dist < min) {
-
-                    double nx = dx / dist;
-                    double ny = dy / dist;
-
-                    double overlap = min - dist;
-
-                    a.setX(a.getX() - nx * overlap / 2);
-                    a.setY(a.getY() - ny * overlap / 2);
-
-                    b.setX(b.getX() + nx * overlap / 2);
-                    b.setY(b.getY() + ny * overlap / 2);
-
-                    double dvx = b.getVx() - a.getVx();
-                    double dvy = b.getVy() - a.getVy();
-
-                    double p = dvx * nx + dvy * ny;
-
-                    if (p < 0) {
-                        a.setVx(a.getVx() + p * nx);
-                        a.setVy(a.getVy() + p * ny);
-
-                        b.setVx(b.getVx() - p * nx);
-                        b.setVy(b.getVy() - p * ny);
-                    }
-
-                    if (estado.getDiscoJogado() != null) {
-
-                        if (a.getId() == estado.getDiscoJogado()) {
-
-                            b.setRemover(true);
-
-                        } else if (b.getId() == estado.getDiscoJogado()) {
-
-                            a.setRemover(true);
-                        }
-                    }
-                }
-            }
-        }
+        resolverColisoes(estado);
 
         String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
 
         boolean existeMovimento = discos.stream()
                 .anyMatch(d -> Math.abs(d.getVx()) > 0.05 || Math.abs(d.getVy()) > 0.05);
 
-        if (!existeMovimento) {
-
-            boolean removeuErrado = discos.stream()
-                    .anyMatch(d -> d.isRemover() && !d.getTeam().equals(timeDaVez));
-
-            if (!removeuErrado) {
-                discos.removeIf(Disco::isRemover);
-            } else {
-                discos.forEach(d -> d.setRemover(false));
-            }
-
-            estado.setDiscoJogado(null);
+        if (!existeMovimento && estado.getDiscoJogado() != null) {
+            finalizarJogada(sala);
         }
 
         boolean removeuAzul = discos.stream()
@@ -444,6 +343,162 @@ public class JogoService {
         }
     }
 
+    private void movimentarDiscos(List<Disco> discos) {
 
+        double largura = 1000;
+        double altura = 1600;
+        double r = 48;
+
+        for (Disco d : discos) {
+
+            d.setX(d.getX() + d.getVx());
+            d.setY(d.getY() + d.getVy());
+
+            d.setVx(d.getVx() * 0.98);
+            d.setVy(d.getVy() * 0.98);
+
+            if (d.getX() < r) {
+                d.setX(r);
+                d.setVx(-d.getVx() * 0.9);
+            }
+
+            if (d.getX() > largura - r) {
+                d.setX(largura - r);
+                d.setVx(-d.getVx() * 0.9);
+            }
+
+            if (d.getY() < r) {
+                d.setY(r);
+                d.setVy(-d.getVy() * 0.9);
+            }
+
+            if (d.getY() > altura - r) {
+                d.setY(altura - r);
+                d.setVy(-d.getVy() * 0.9);
+            }
+        }
+    }
+
+    private void resolverColisoes(EstadoPartida estado) {
+
+        List<Disco> discos = estado.getDiscos();
+        double r = 48;
+
+        for (int i = 0; i < discos.size(); i++) {
+            for (int j = i + 1; j < discos.size(); j++) {
+
+                Disco a = discos.get(i);
+                Disco b = discos.get(j);
+
+                double dx = b.getX() - a.getX();
+                double dy = b.getY() - a.getY();
+
+                double dist = Math.sqrt(dx * dx + dy * dy);
+                double min = r * 2;
+
+                if (dist > 0 && dist < min) {
+
+                    double nx = dx / dist;
+                    double ny = dy / dist;
+
+                    double overlap = min - dist;
+
+                    a.setX(a.getX() - nx * overlap / 2);
+                    a.setY(a.getY() - ny * overlap / 2);
+
+                    b.setX(b.getX() + nx * overlap / 2);
+                    b.setY(b.getY() + ny * overlap / 2);
+
+                    double dvx = b.getVx() - a.getVx();
+                    double dvy = b.getVy() - a.getVy();
+
+                    double p = dvx * nx + dvy * ny;
+
+                    if (p < 0) {
+                        a.setVx(a.getVx() + p * nx);
+                        a.setVy(a.getVy() + p * ny);
+
+                        b.setVx(b.getVx() - p * nx);
+                        b.setVy(b.getVy() - p * ny);
+                    }
+
+                    processarColisao(estado, a, b);
+                }
+            }
+        }
+    }
+
+    private void processarColisao(EstadoPartida estado, Disco a, Disco b) {
+
+        if (estado.getDiscoJogado() == null) {
+            return;
+        }
+
+        Disco discoLancado = null;
+        Disco outroDisco = null;
+
+        if (a.getId() == estado.getDiscoJogado()) {
+            discoLancado = a;
+            outroDisco = b;
+        } else if (b.getId() == estado.getDiscoJogado()) {
+            discoLancado = b;
+            outroDisco = a;
+        } else {
+            return;
+        }
+
+        estado.setAcertouAlgumaPeca(true);
+
+        String timeDaVez = estado.getVez().equals("AZUL") ? "blue" : "red";
+
+        if (!outroDisco.getTeam().equals(timeDaVez)) {
+            estado.setBateuErrado(true);
+            return;
+        }
+
+        estado.getDiscosPontuados().add(outroDisco.getId());
+
+        outroDisco.setRemover(true);
+    }
+
+    private void finalizarJogada(Sala sala) throws IOException {
+
+        EstadoPartida estado = sala.getEstado();
+
+        List<Disco> discos = estado.getDiscos();
+
+        String timeDaVez =
+                estado.getVez().equals("AZUL") ? "blue" : "red";
+
+        if (estado.isBateuErrado()) {
+
+            discos.forEach(d -> d.setRemover(false));
+
+        } else {
+
+            if (estado.getVez().equals("AZUL")) {
+                estado.setPontosAzul(
+                        estado.getPontosAzul()
+                                + estado.getDiscosPontuados().size());
+            } else {
+
+                estado.setPontosVermelho(
+                        estado.getPontosVermelho()
+                                + estado.getDiscosPontuados().size());
+            }
+
+            discos.removeIf(Disco::isRemover);
+        }
+
+        verificarVencedor(sala);
+
+        estado.setVez(
+                estado.getVez().equals("AZUL")
+                        ? "VERMELHO"
+                        : "AZUL");
+
+        estado.limparJogada();
+        estado.setJogando(false);
+    }
 
 }

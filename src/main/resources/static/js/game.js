@@ -274,9 +274,22 @@ function startGame() {
         // não faz nada (ou remover completamente depois)
     };
 
-    window.atualizarEstado = function (estado) {
+    window.atualizarEstado = function(estado){
+
         estadoServidor = estado;
-    };
+
+        vez = estado.vez;
+
+        pontosAzul = estado.pontosAzul;
+        pontosVermelho = estado.pontosVermelho;
+
+        document.getElementById("pontosAzul").innerHTML = pontosAzul;
+        document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
+
+        preenchendoVez();
+
+        movendo = estado.jogando;
+    }
 
 
     // INICIAR JOGO ONLINE
@@ -294,13 +307,6 @@ function startGame() {
                 render();
             });
         }
-    }
-
-    window.atualizarPontos = function (mensagem) {
-        pontosAzul = mensagem.pontosAzul;
-        pontosVermelho = mensagem.pontosVermelho;
-        document.getElementById("pontosAzul").innerHTML = pontosAzul;
-        document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
     }
 
     window.atualizarVez = function (mensagem) {
@@ -327,6 +333,14 @@ function startGame() {
         x.clearRect(0, 0, c.width, c.height);
 
         if (estadoServidor?.discos) {
+
+            if (estadoServidor.vez !== vez) {
+                vez = estadoServidor.vez;
+                preenchendoVez();
+            }
+
+            document.getElementById("pontosAzul").innerHTML = estadoServidor.pontosAzul;
+            document.getElementById("pontosVermelho").innerHTML = estadoServidor.pontosVermelho;
 
             for (let serverDisc of estadoServidor.discos) {
 
