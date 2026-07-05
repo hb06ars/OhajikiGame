@@ -270,10 +270,6 @@ function startGame() {
 
     }
 
-    window.aplicarJogada = function () {
-        // não faz nada (ou remover completamente depois)
-    };
-
     window.atualizarEstado = function(estado){
 
         estadoServidor = estado;

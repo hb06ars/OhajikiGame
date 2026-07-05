@@ -42,10 +42,6 @@ socket.onmessage = (e) => {
                 resposta.mensagem;
             break;
 
-        case "JOGADA":
-            window.aplicarJogada(resposta);
-            break;
-
         case "REMOVER_DISCOS":
             removerDiscos(resposta);
             break;
