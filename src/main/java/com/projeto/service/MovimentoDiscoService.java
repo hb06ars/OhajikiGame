@@ -6,15 +6,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.projeto.utils.Constants.BORDA_BAIXO;
+import static com.projeto.utils.Constants.BORDA_DIREITA;
+import static com.projeto.utils.Constants.BORDA_ESQUERDA;
+import static com.projeto.utils.Constants.BORDA_TOPO;
+import static com.projeto.utils.Constants.RAIO_DISCO;
+
 @Component
 @RequiredArgsConstructor
 public class MovimentoDiscoService {
 
     public void movimentarDiscos(List<Disco> discos) {
 
-        var largura = 1000;
-        var altura = 1750;
-        var r = 48;
+        var r = RAIO_DISCO;
 
         for (Disco d : discos) {
 
@@ -24,23 +28,23 @@ public class MovimentoDiscoService {
             d.setVx(d.getVx() * 0.98);
             d.setVy(d.getVy() * 0.98);
 
-            if (d.getX() < r) {
-                d.setX(r);
+            if (d.getX() < BORDA_ESQUERDA + r) {
+                d.setX(BORDA_ESQUERDA + r);
                 d.setVx(-d.getVx() * 0.9);
             }
 
-            if (d.getX() > largura - r) {
-                d.setX(largura - r);
+            if (d.getX() > BORDA_DIREITA - r) {
+                d.setX(BORDA_DIREITA - r);
                 d.setVx(-d.getVx() * 0.9);
             }
 
-            if (d.getY() < r) {
-                d.setY(r);
+            if (d.getY() < BORDA_TOPO + r) {
+                d.setY(BORDA_TOPO + r);
                 d.setVy(-d.getVy() * 0.9);
             }
 
-            if (d.getY() > altura - r) {
-                d.setY(altura - r);
+            if (d.getY() > BORDA_BAIXO - r) {
+                d.setY(BORDA_BAIXO - r);
                 d.setVy(-d.getVy() * 0.9);
             }
         }

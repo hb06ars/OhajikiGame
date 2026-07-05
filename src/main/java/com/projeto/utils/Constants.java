@@ -9,4 +9,11 @@ public class Constants {
     public static final String AZUL = "AZUL";
     public static final Integer DISCOS_ADICIONAR = 5;
     public static final Integer VELOCIDADE_MAXIMA = 150;
+
+    // MESA
+    public static final int BORDA_ESQUERDA = 0;
+    public static final int BORDA_DIREITA = 1000;
+    public static final int BORDA_TOPO = 80;
+    public static final int BORDA_BAIXO = 1750;
+
 }

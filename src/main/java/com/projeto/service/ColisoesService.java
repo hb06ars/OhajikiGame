@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import static com.projeto.utils.Constants.AZUL;
+import static com.projeto.utils.Constants.RAIO_DISCO;
 
 @Component
 @RequiredArgsConstructor
@@ -14,7 +15,7 @@ public class ColisoesService {
     public void resolverColisoes(EstadoPartida estado) {
 
         var discos = estado.getDiscos();
-        double r = 48;
+        double r = RAIO_DISCO;
 
         for (int i = 0; i < discos.size(); i++) {
             for (int j = i + 1; j < discos.size(); j++) {
