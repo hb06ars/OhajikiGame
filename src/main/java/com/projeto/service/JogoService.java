@@ -134,7 +134,21 @@ public class JogoService {
 
         if (sala == null) return;
 
-        Disco disco = sala.getEstado().getDiscos()
+        EstadoPartida estado = sala.getEstado();
+
+        if (estado.isJogando()) {
+            return;
+        }
+
+        String jogador = session.getId().equals(sala.getAzul().getId())
+                ? "AZUL"
+                : "VERMELHO";
+
+        if (!estado.getVez().equals(jogador)) {
+            return;
+        }
+
+        Disco disco = estado.getDiscos()
                 .stream()
                 .filter(d -> d.getId() == dto.getDiscoId())
                 .findFirst()
@@ -142,13 +156,12 @@ public class JogoService {
 
         if (disco == null) return;
 
-        disco.setVx(dto.getVx());
-        disco.setVy(dto.getVy());
-
-        EstadoPartida estado = sala.getEstado();
         estado.limparJogada();
         estado.setJogando(true);
         estado.setDiscoJogado(disco.getId());
+
+        disco.setVx(dto.getVx());
+        disco.setVy(dto.getVy());
     }
 
     private List<Disco> criarDiscos() {
