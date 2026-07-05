@@ -1,3 +1,19 @@
+@media screen and (orientation: landscape) {
+  body {
+    display: none;
+  }
+
+  html::before {
+    content: "Gire o celular para modo vertical";
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 20px;
+    text-align: center;
+  }
+}
+
 #telaJogo{
     display:none;
 }
