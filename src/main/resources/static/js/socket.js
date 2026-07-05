@@ -4,12 +4,10 @@ const socket = new WebSocket(
     `${protocolo}://${location.host}/ws/jogo`
 );
 
-
 socket.onmessage = (e) => {
     const resposta = JSON.parse(e.data);
 
     switch (resposta.tipo) {
-
         case "CONECTADO":
             break;
 
@@ -37,23 +35,6 @@ socket.onmessage = (e) => {
             window.iniciarJogoOnline();
             break;
 
-        case "ERRO":
-            document.getElementById("statusSala").innerHTML =
-                resposta.mensagem;
-            break;
-
-        case "REMOVER_DISCOS":
-            removerDiscos(resposta);
-            break;
-
-        case "ATUALIZAR_PONTOS":
-            atualizarPontos(resposta);
-            break;
-
-        case "MUDAR_VEZ":
-            atualizarVez(resposta);
-            break;
-
         case "FIM_JOGO":
             fimJogo(resposta);
             break;
@@ -66,11 +47,9 @@ socket.onmessage = (e) => {
 };
 
 function criarSala() {
-
     socket.send(JSON.stringify({
         tipo: "CRIAR_SALA"
     }));
-
 }
 
 function entrarSala() {
@@ -80,12 +59,10 @@ function entrarSala() {
             "Informe o código da sala.";
         return;
     }
-
     socket.send(JSON.stringify({
         tipo: "ENTRAR_SALA",
         sala: codigo
     }));
-
 }
 
 function mostrarLobby() {

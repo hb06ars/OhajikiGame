@@ -1,13 +1,8 @@
 var vez = "AZUL";
-var pontosTemporarioAzul = 0;
-var pontosTemporarioVermelho = 0;
 var pontosAzul = 0;
 var pontosVermelho = 0;
 var proximoId = 1;
-var idParaRemover = null;
 var bateuErrado = false;
-var discosPontuados = new Set();
-var acertouAlgumaPeca = false;
 let jogoIniciado = false;
 let estado = "AGUARDANDO";
 let discs = [];
@@ -18,28 +13,20 @@ let lastX = 0;
 let lastY = 0;
 let movendo = false;
 let estadoServidor = null;
-
 const imgBlue = new Image();
 const imgRed = new Image();
-
 imgBlue.src = "img/disco_azul.png";
 imgRed.src = "img/disco_vermelho.png";
-
-
-
 
 // START GAME ------------------------------------------------
 // Essa função faz toda a inicialização.
 function startGame() {
-    console.log("START GAME EXECUTADO");
     if (jogoIniciado) {
         return;
     }
     jogoIniciado = true;
 
     estado = Partida.getEstado();
-    console.log("ESTADO RECEBIDO:", estado);
-    console.log("DISCOS:", estado?.discos);
 
     if (!estado) {
         alert("Estado da partida não recebido.");
@@ -50,7 +37,6 @@ function startGame() {
 
     // Div do canvas no html com id = c, com um Contexto 2D.
     const c = document.getElementById("c");
-
     const x = c.getContext("2d");
 
     // Resize sempre que a janela muda de tamanho. Isso faz o canvas ocupar a tela inteira.
@@ -59,8 +45,6 @@ function startGame() {
         c.height = innerHeight;
     }
 
-
-
     onresize = rs;
     rs();
 
@@ -68,7 +52,6 @@ function startGame() {
     discs = [];
 
     if (!estado || !estado.discos) {
-        console.error("Estado inválido:", estado);
         return;
     }
 
@@ -91,7 +74,6 @@ function startGame() {
 
     // Responsável por criar os discos de forma aleatória na mesa, sem encostar um no outro.
     function add(n, team) {
-
         const img = team === "blue" ? imgBlue : imgRed;
 
         for (let i = 0; i < n; i++) {
@@ -100,7 +82,6 @@ function startGame() {
             let valido = false;
 
             while (!valido) {
-
                 // posição aleatória dentro da mesa
                 const MARGEM = 40;
 
@@ -145,22 +126,17 @@ function startGame() {
         };
     }
 
-        // Executa quando o jogador toca em algum lugar.
+    // Executa quando o jogador toca em algum lugar.
     function down(p) {
-
         if (movendo) {
             return;
         }
-
         if (Partida.getJogador() !== vez) {
             return;
         }
-
         sel = null;
 
         for (let d of discs) {
-
-            // Só permite selecionar peças da vez
             if (vez === "AZUL" && d.team !== "blue")
                 continue;
 
@@ -168,12 +144,9 @@ function startGame() {
                 continue;
 
             if (Math.hypot(p.x - d.x, p.y - d.y) < d.r) {
-
                 sel = d;
-
                 sx = p.x;
                 sy = p.y;
-
                 break;
             }
         }
@@ -188,11 +161,9 @@ function startGame() {
 
     // É chamada quando o jogador solta o dedo.
     function up(p) {
-
         if (movendo) {
             return;
         }
-
         bateuErrado = false;
 
         if (!sel) return;
@@ -225,7 +196,6 @@ function startGame() {
         });
     }, { passive: false });
 
-
     c.ontouchmove = e => {
         e.preventDefault();
         lastX = e.touches[0].clientX;
@@ -235,7 +205,6 @@ function startGame() {
             y: lastY
         });
     };
-
 
     c.ontouchend = e => {
         e.preventDefault();
@@ -253,132 +222,115 @@ function startGame() {
 
 // FORA DO START GAME ------------------------------------------------
 
-    function preenchendoVez(){
-        const info = document.getElementById("infoJogador");
+function preenchendoVez(){
+    const info = document.getElementById("infoJogador");
 
-        if (Partida.getJogador() === vez) {
-            info.innerHTML =
-                "🎯 Você é " +
-                (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
-                " SUA VEZ!";
-        } else {
-            info.innerHTML =
-                "⏳ Você é " +
-                (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
-                " AGUARDE!";
-        }
-
+    if (Partida.getJogador() === vez) {
+        info.innerHTML =
+            "🎯 Você é " +
+            (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
+            " SUA VEZ!";
+    } else {
+        info.innerHTML =
+            "⏳ Você é " +
+            (Partida.getJogador() === "AZUL" ? "🔵" : "🔴") +
+            " AGUARDE!";
     }
 
-    window.atualizarEstado = function(estado){
+}
 
-        estadoServidor = estado;
-
-        vez = estado.vez;
-
-        pontosAzul = estado.pontosAzul;
-        pontosVermelho = estado.pontosVermelho;
-
-        document.getElementById("pontosAzul").innerHTML = pontosAzul;
-        document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
-
-        preenchendoVez();
-
-        movendo = estado.jogando;
-    }
+window.atualizarEstado = function(estado){
+    estadoServidor = estado;
+    vez = estado.vez;
+    pontosAzul = estado.pontosAzul;
+    pontosVermelho = estado.pontosVermelho;
+    document.getElementById("pontosAzul").innerHTML = pontosAzul;
+    document.getElementById("pontosVermelho").innerHTML = pontosVermelho;
+    preenchendoVez();
+    movendo = estado.jogando;
+}
 
 
-    // INICIAR JOGO ONLINE
-    window.iniciarJogoOnline = function () {
-
-        if (imgBlue.complete && imgRed.complete) {
+// INICIAR JOGO ONLINE
+window.iniciarJogoOnline = function () {
+    if (imgBlue.complete && imgRed.complete) {
+        startGame();
+        render();
+    } else {
+        Promise.all([
+            new Promise(r => imgBlue.onload = r),
+            new Promise(r => imgRed.onload = r)
+        ]).then(() => {
             startGame();
             render();
-        } else {
-            Promise.all([
-                new Promise(r => imgBlue.onload = r),
-                new Promise(r => imgRed.onload = r)
-            ]).then(() => {
-                startGame();
-                render();
-            });
+        });
+    }
+}
+
+window.atualizarVez = function (mensagem) {
+    vez = mensagem.vez;
+    preenchendoVez();
+}
+
+window.fimJogo = function (mensagem) {
+    const meuTime = Partida.getJogador();
+    if (mensagem.vencedor === meuTime) {
+        alert("🎉 Parabéns! Você venceu!");
+    } else {
+        alert("😢 Você perdeu!");
+    }
+    location.reload();
+}
+
+function render() {
+    const c = document.getElementById("c");
+    const x = c.getContext("2d");
+    x.clearRect(0, 0, c.width, c.height);
+
+    if (estadoServidor?.discos) {
+        if (estadoServidor.vez !== vez) {
+            vez = estadoServidor.vez;
+            preenchendoVez();
         }
+
+        document.getElementById("pontosAzul").innerHTML = estadoServidor.pontosAzul;
+        document.getElementById("pontosVermelho").innerHTML = estadoServidor.pontosVermelho;
+
+        for (let serverDisc of estadoServidor.discos) {
+            let clientDisc = discs.find(d => d.id === serverDisc.id);
+            if (!clientDisc) continue;
+            clientDisc.x += (serverDisc.x - clientDisc.x) * 0.2;
+            clientDisc.y += (serverDisc.y - clientDisc.y) * 0.2;
+            clientDisc.vx = serverDisc.vx;
+            clientDisc.vy = serverDisc.vy;
+        }
+
+        discs = discs.filter(d =>
+            estadoServidor.discos.some(s => s.id === d.id)
+        );
     }
 
-    window.atualizarVez = function (mensagem) {
-        vez = mensagem.vez;
-        preenchendoVez();
+    for (let d of discs) {
+
+        if (!d.img) {
+            d.img = d.team === "blue" ? imgBlue : imgRed;
+            d.r = 48;
+        }
+        x.save();
+        x.translate(d.x, d.y);
+        x.drawImage(d.img, -d.r, -d.r, d.r * 2, d.r * 2);
+        x.restore();
     }
 
-    window.fimJogo = function (mensagem) {
-        const meuTime = Partida.getJogador();
-
-        if (mensagem.vencedor === meuTime) {
-            alert("🎉 Parabéns! Você venceu!");
-        } else {
-            alert("😢 Você perdeu!");
-        }
-        location.reload();
+    if (sel && sel.ax != null) {
+        x.beginPath();
+        x.strokeStyle = "white";
+        x.moveTo(sel.x, sel.y);
+        x.lineTo(sel.ax, sel.ay);
+        x.stroke();
     }
-
-    function render() {
-
-        const c = document.getElementById("c");
-        const x = c.getContext("2d");
-
-        x.clearRect(0, 0, c.width, c.height);
-
-        if (estadoServidor?.discos) {
-
-            if (estadoServidor.vez !== vez) {
-                vez = estadoServidor.vez;
-                preenchendoVez();
-            }
-
-            document.getElementById("pontosAzul").innerHTML = estadoServidor.pontosAzul;
-            document.getElementById("pontosVermelho").innerHTML = estadoServidor.pontosVermelho;
-
-            for (let serverDisc of estadoServidor.discos) {
-
-                let clientDisc = discs.find(d => d.id === serverDisc.id);
-
-                if (!clientDisc) continue;
-
-                clientDisc.x += (serverDisc.x - clientDisc.x) * 0.2;
-                clientDisc.y += (serverDisc.y - clientDisc.y) * 0.2;
-
-                clientDisc.vx = serverDisc.vx;
-                clientDisc.vy = serverDisc.vy;
-            }
-
-            discs = discs.filter(d =>
-                estadoServidor.discos.some(s => s.id === d.id)
-            );
-        }
-
-        for (let d of discs) {
-
-            if (!d.img) {
-                d.img = d.team === "blue" ? imgBlue : imgRed;
-                d.r = 48;
-            }
-
-            x.save();
-            x.translate(d.x, d.y);
-            x.drawImage(d.img, -d.r, -d.r, d.r * 2, d.r * 2);
-            x.restore();
-        }
-
-        if (sel && sel.ax != null) {
-            x.beginPath();
-            x.strokeStyle = "white";
-            x.moveTo(sel.x, sel.y);
-            x.lineTo(sel.ax, sel.ay);
-            x.stroke();
-        }
-
-        requestAnimationFrame(render);
-    }
+    requestAnimationFrame(render);
+}
 
 
 // FIM FORA DO START GAME ------------------------------------------------
