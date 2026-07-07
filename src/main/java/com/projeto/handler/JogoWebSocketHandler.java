@@ -50,9 +50,13 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
         // JOGADOR DESCONECTADO
-        gameService.desconectar(session);
-        gameService.removerLobby(session);
-        gameService.atualizarLobby();
+        try{
+            gameService.desconectar(session);
+            gameService.removerLobby(session);
+            gameService.atualizarLobby();
+        } catch(Exception e){
+            System.out.println("Sessão já foi fechada: " + e);
+        }
     }
 
 }
