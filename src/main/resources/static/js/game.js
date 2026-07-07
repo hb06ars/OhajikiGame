@@ -333,7 +333,7 @@ function render() {
 }
 
 window.atualizarListaSalas = function(salas){
-    console.log(salas)
+    //console.log(salas)
     const div = document.getElementById("listaSalas");
     div.innerHTML = "";
 

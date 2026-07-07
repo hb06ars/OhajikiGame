@@ -11,12 +11,15 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class JogoWebSocketHandler extends TextWebSocketHandler {
 
     private final GameService gameService;
     private final ObjectMapper mapper = new ObjectMapper();
+    private final Set<WebSocketSession> lobbySessions = ConcurrentHashMap.newKeySet();
 
     public JogoWebSocketHandler(GameService gameService) {
         this.gameService = gameService;
@@ -24,11 +27,15 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        // JOGADOR CONECTADO
+        lobbySessions.add(session);
+        gameService.adicionarLobby(session);
 
-        System.out.println("Jogador conectado: " + session.getId());
-
-        var resposta = MensagemDTO.builder().tipo(StatusEnum.CONECTADO.name()).sala(null)
-                .mensagem("Conectado ao servidor").build();
+        var resposta = MensagemDTO.builder()
+                .tipo(StatusEnum.CONECTADO.name())
+                .sala(null)
+                .mensagem("Conectado ao servidor")
+                .build();
 
         session.sendMessage(new TextMessage(mapper.writeValueAsString(resposta)));
         gameService.enviarListaSalas(session);
@@ -42,9 +49,10 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
+        // JOGADOR DESCONECTADO
         gameService.desconectar(session);
-        gameService.enviarListaSalas(session);
-        System.out.println("Jogador saiu: " + session.getId());
+        gameService.removerLobby(session);
+        gameService.atualizarLobby();
     }
 
 }

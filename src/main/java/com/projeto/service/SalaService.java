@@ -14,6 +14,7 @@ import org.springframework.web.socket.WebSocketSession;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.projeto.utils.Constants.AZUL;
@@ -43,16 +44,12 @@ public class SalaService {
         sala.setEstado(estado);
         salas.put(codigo, sala);
 
-        atualizarSalas(salas);
-        enviarListaSalas(salas);
-
         var resposta = MensagemDTO.builder()
                 .tipo(StatusEnum.SALA_CRIADA.name())
                 .sala(codigo)
                 .mensagem("Sala criada: " + codigo)
                 .build();
 
-        System.out.println("Sala criada: " + codigo);
         session.sendMessage(new TextMessage(jsonUtils.toJson(resposta)));
     }
 
@@ -63,27 +60,6 @@ public class SalaService {
                 .map(Sala::getCodigo)
                 .limit(3)
                 .toList();
-    }
-
-    private void enviarListaSalas(Map<String, Sala> salas) throws IOException {
-
-        var dto = MensagemDTO.builder()
-                .tipo("LISTA_SALAS")
-                .salas(listarSalasDisponiveis(salas))
-                .build();
-
-        var json = jsonUtils.toJson(dto);
-
-        for (Sala sala : salas.values()) {
-
-            if (sala.getAzul() != null && sala.getAzul().isOpen()) {
-                sala.getAzul().sendMessage(new TextMessage(json));
-            }
-
-            if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
-                sala.getVermelho().sendMessage(new TextMessage(json));
-            }
-        }
     }
 
     public void entrarSala(WebSocketSession session, String codigo, Map<String, Sala> salas) throws IOException {
@@ -97,7 +73,6 @@ public class SalaService {
             return;
         }
         sala.setVermelho(session);
-        atualizarSalas(salas);
 
         var azul = montarSala(codigo, sala, AZUL);
         var vermelho = montarSala(codigo, sala, VERMELHO);
@@ -142,26 +117,30 @@ public class SalaService {
         }
     }
 
-    void atualizarSalas(Map<String, Sala> salas) throws IOException {
+    public void adicionarLobby(Set<WebSocketSession> lobbySessions, WebSocketSession session) {
+        lobbySessions.add(session);
+    }
 
-        List<String> salasDisponiveis = listarSalasDisponiveis(salas);
+    public void removerLobby(Set<WebSocketSession> lobbySessions, WebSocketSession session) {
+        lobbySessions.remove(session);
+    }
 
-        MensagemDTO dto = MensagemDTO.builder()
-                .tipo("SALAS")
-                .salas(salasDisponiveis)
+    public void atualizarLobby(Set<WebSocketSession> lobbySessions, Map<String, Sala> salas) throws IOException {
+
+        var dto = MensagemDTO.builder()
+                .tipo("LISTA_SALAS")
+                .salas(listarSalasDisponiveis(salas))
                 .build();
 
-        String json = jsonUtils.toJson(dto);
+        var json = jsonUtils.toJson(dto);
 
-        for (Sala sala : salas.values()) {
+        for (WebSocketSession session : lobbySessions) {
 
-            if (sala.getAzul() != null && sala.getAzul().isOpen()) {
-                sala.getAzul().sendMessage(new TextMessage(json));
-            }
-
-            if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
-                sala.getVermelho().sendMessage(new TextMessage(json));
+            if (session.isOpen()) {
+                session.sendMessage(new TextMessage(json));
             }
         }
     }
+
+
 }

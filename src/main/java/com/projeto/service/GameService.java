@@ -10,6 +10,7 @@ import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -21,6 +22,7 @@ public class GameService {
     private final JogadaService jogadaService;
     private final StepService stepService;
     private final JsonUtils jsonUtils;
+    private final Set<WebSocketSession> lobbySessions = ConcurrentHashMap.newKeySet();
 
     public void stepAllSalas() throws IOException {
         for (Sala sala : salas.values()) {
@@ -33,11 +35,13 @@ public class GameService {
         switch (dto.getTipo()) {
             case "CRIAR_SALA":
                 salaService.criarSala(session, salas);
-                salaService.listarSalasDisponiveis(salas);
+                salaService.atualizarLobby(lobbySessions, salas);
                 break;
 
             case "ENTRAR_SALA":
+                salaService.removerLobby(lobbySessions, session);
                 salaService.entrarSala(session, dto.getSala(), salas);
+                salaService.atualizarLobby(lobbySessions, salas);
                 break;
 
             case "JOGADA":
@@ -72,14 +76,26 @@ public class GameService {
 
             if (sala.getVermelho() != null && sala.getVermelho().getId().equals(session.getId())) {
                 sala.setVermelho(null);
-                salaService.atualizarSalas(salas);
+                salaService.atualizarLobby(lobbySessions, salas);
                 return;
             }
         }
 
         if (salaRemover != null) {
             salas.remove(salaRemover);
-            salaService.atualizarSalas(salas);
+            salaService.atualizarLobby(lobbySessions, salas);
         }
+    }
+
+    public void adicionarLobby(WebSocketSession session) {
+        salaService.adicionarLobby(lobbySessions, session);
+    }
+
+    public void removerLobby(WebSocketSession session) {
+        salaService.removerLobby(lobbySessions, session);
+    }
+
+    public void atualizarLobby() throws IOException {
+        salaService.atualizarLobby(lobbySessions, salas);
     }
 }
