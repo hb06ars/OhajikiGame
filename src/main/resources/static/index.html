@@ -19,15 +19,19 @@
 
     <div class="painelLobby">
 
-        <button class="bt-azul" onclick="criarSala()">
+        <button class="bt-verde" id="btcriar" onclick="criarSala()">
             Criar Sala
+        </button>
+
+        <button class="bt-azul" id="btvoltar" onclick="voltar()" style="display:none">
+            Voltar
         </button>
 
         <input
                 id="codigoSala"
                 type="text"
                 maxlength="5"
-                placeholder="Código da Sala">
+                placeholder="Buscar código da sala existente.">
 
         <button class="bt-azul" id="btEntrarSala" onclick="entrarSala()">
             Entrar
@@ -44,8 +48,6 @@
         </div>
 
         <hr>
-
-        <h3>Salas existentes</h3>
         <div id="listaSalas"></div>
 
     </div>
@@ -80,6 +82,12 @@
 <script src="js/partida.js"></script>
 <script src="js/game.js"></script>
 <script src="js/socket.js"></script>
+
+<script>
+    function voltar(){
+        window.location.href='/';
+    }
+</script>
 
 </body>
 </html>

@@ -333,7 +333,7 @@ function render() {
 }
 
 window.atualizarListaSalas = function(salas){
-    //console.log(salas)
+
     const div = document.getElementById("listaSalas");
     div.innerHTML = "";
 
@@ -341,6 +341,8 @@ window.atualizarListaSalas = function(salas){
         div.innerHTML = "<i>Nenhuma sala disponível.</i>";
         return;
     }
+
+    div.innerHTML += `<h1 style="margin-bottom: 20px; color: #DDD; font-size: 38px; min-height: 24px;">Salas existentes:</h1>`;
 
     salas.forEach(codigo => {
         div.innerHTML += `

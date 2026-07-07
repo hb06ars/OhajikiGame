@@ -24,6 +24,9 @@ socket.onmessage = (e) => {
             document.getElementById("statusSala").innerHTML = "<span style='color:#abffab'>SALA CRIADA: " + resposta.sala + ", AGUARDE.</span>";
             document.getElementById("codigoSala").style.display = "none";
             document.getElementById("btEntrarSala").style.display = "none";
+            document.getElementById("listaSalas").style.display = "none";
+            document.getElementById("btcriar").style.display = "none";
+            document.getElementById("btvoltar").style.display = "block";
             break;
 
         case "PARTIDA_INICIADA":

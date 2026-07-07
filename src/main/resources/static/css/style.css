@@ -115,6 +115,7 @@
 .bt-laranja:hover{
     background:#b89e40;
 }
+
 .bt-laranja{
     background:#6d580c;
     color:white;
@@ -122,6 +123,15 @@
 
 .bt-vermelho:hover{
     background:#f48380;
+}
+
+.bt-verde{
+    background:#256a27;
+    color:white;
+}
+
+.bt-verde:hover{
+    background:#59ad5c;
 }
 
 
