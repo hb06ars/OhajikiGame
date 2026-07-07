@@ -10,6 +10,8 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.io.IOException;
+
 @Component
 public class JogoWebSocketHandler extends TextWebSocketHandler {
 
@@ -38,7 +40,8 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
+        gameService.enviarListaSalas(session);
         System.out.println("Jogador saiu: " + session.getId());
     }
 

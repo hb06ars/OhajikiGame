@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -27,5 +29,7 @@ public class MensagemDTO {
     private String vencedor;
 
     private String mensagem;
+
+    private List<String> salas;
 
 }

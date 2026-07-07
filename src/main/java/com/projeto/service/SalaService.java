@@ -12,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -42,6 +43,7 @@ public class SalaService {
         sala.setEstado(estado);
         salas.put(codigo, sala);
 
+        enviarListaSalas(salas);
 
         var resposta = MensagemDTO.builder()
                 .tipo(StatusEnum.SALA_CRIADA.name())
@@ -51,6 +53,36 @@ public class SalaService {
 
         System.out.println("Sala criada: " + codigo);
         session.sendMessage(new TextMessage(jsonUtils.toJson(resposta)));
+    }
+
+    List<String> listarSalasDisponiveis(Map<String, Sala> salas) {
+        return salas.values()
+                .stream()
+                .filter(s -> s.getVermelho() == null)
+                .map(Sala::getCodigo)
+                .limit(3)
+                .toList();
+    }
+
+    private void enviarListaSalas(Map<String, Sala> salas) throws IOException {
+
+        var dto = MensagemDTO.builder()
+                .tipo("LISTA_SALAS")
+                .salas(listarSalasDisponiveis(salas))
+                .build();
+
+        var json = jsonUtils.toJson(dto);
+
+        for (Sala sala : salas.values()) {
+
+            if (sala.getAzul() != null && sala.getAzul().isOpen()) {
+                sala.getAzul().sendMessage(new TextMessage(json));
+            }
+
+            if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
+                sala.getVermelho().sendMessage(new TextMessage(json));
+            }
+        }
     }
 
     public void entrarSala(WebSocketSession session, String codigo, Map<String, Sala> salas) throws IOException {

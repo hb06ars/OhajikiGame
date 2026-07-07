@@ -42,6 +42,10 @@ socket.onmessage = (e) => {
         case "ESTADO":
             atualizarEstado(resposta.estado);
             break;
+
+        case "LISTA_SALAS":
+            atualizarListaSalas(resposta.salas);
+            break;
     }
 
 };
@@ -73,4 +77,9 @@ function mostrarLobby() {
 function mostrarJogo() {
     document.getElementById("telaLobby").style.display = "none";
     document.getElementById("telaJogo").style.display = "block";
+}
+
+function entrarSalaCodigo(codigo){
+    document.getElementById("codigoSala").value = codigo;
+    entrarSala();
 }

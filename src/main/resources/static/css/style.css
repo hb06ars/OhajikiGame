@@ -52,6 +52,7 @@
 
     text-align: center;
     backdrop-filter: blur(6px);
+    max-height: 100%;
 }
 
 .painelLobby input{
@@ -108,6 +109,14 @@
 
 .bt-vermelho{
     background:#e53935;
+    color:white;
+}
+
+.bt-laranja:hover{
+    background:#b89e40;
+}
+.bt-laranja{
+    background:#6d580c;
     color:white;
 }
 

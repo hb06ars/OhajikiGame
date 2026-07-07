@@ -332,5 +332,23 @@ function render() {
     requestAnimationFrame(render);
 }
 
+window.atualizarListaSalas = function(salas){
+    console.log(salas)
+    const div = document.getElementById("listaSalas");
+    div.innerHTML = "";
 
+    if(salas.length === 0){
+        div.innerHTML = "<i>Nenhuma sala disponível.</i>";
+        return;
+    }
+
+    salas.forEach(codigo => {
+        div.innerHTML += `
+            <button class="bt-laranja"
+                onclick="entrarSalaCodigo('${codigo}')">
+                ${codigo}
+            </button><br><br>
+        `;
+    });
+}
 // FIM FORA DO START GAME ------------------------------------------------
