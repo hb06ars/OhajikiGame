@@ -43,6 +43,7 @@ public class SalaService {
         sala.setEstado(estado);
         salas.put(codigo, sala);
 
+        atualizarSalas(salas);
         enviarListaSalas(salas);
 
         var resposta = MensagemDTO.builder()
@@ -96,6 +97,7 @@ public class SalaService {
             return;
         }
         sala.setVermelho(session);
+        atualizarSalas(salas);
 
         var azul = montarSala(codigo, sala, AZUL);
         var vermelho = montarSala(codigo, sala, VERMELHO);
@@ -137,6 +139,29 @@ public class SalaService {
 
         if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
             sala.getVermelho().sendMessage(new TextMessage(json));
+        }
+    }
+
+    void atualizarSalas(Map<String, Sala> salas) throws IOException {
+
+        List<String> salasDisponiveis = listarSalasDisponiveis(salas);
+
+        MensagemDTO dto = MensagemDTO.builder()
+                .tipo("SALAS")
+                .salas(salasDisponiveis)
+                .build();
+
+        String json = jsonUtils.toJson(dto);
+
+        for (Sala sala : salas.values()) {
+
+            if (sala.getAzul() != null && sala.getAzul().isOpen()) {
+                sala.getAzul().sendMessage(new TextMessage(json));
+            }
+
+            if (sala.getVermelho() != null && sala.getVermelho().isOpen()) {
+                sala.getVermelho().sendMessage(new TextMessage(json));
+            }
         }
     }
 }

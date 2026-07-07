@@ -31,6 +31,7 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
                 .mensagem("Conectado ao servidor").build();
 
         session.sendMessage(new TextMessage(mapper.writeValueAsString(resposta)));
+        gameService.enviarListaSalas(session);
     }
 
     @Override
@@ -41,6 +42,7 @@ public class JogoWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws IOException {
+        gameService.desconectar(session);
         gameService.enviarListaSalas(session);
         System.out.println("Jogador saiu: " + session.getId());
     }

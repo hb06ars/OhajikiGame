@@ -59,4 +59,27 @@ public class GameService {
 
         session.sendMessage(new TextMessage(jsonUtils.toJson(dto)));
     }
+
+    public void desconectar(WebSocketSession session) throws IOException {
+        String salaRemover = null;
+
+        for (Sala sala : salas.values()) {
+
+            if (sala.getAzul() != null && sala.getAzul().getId().equals(session.getId())) {
+                salaRemover = sala.getCodigo();
+                break;
+            }
+
+            if (sala.getVermelho() != null && sala.getVermelho().getId().equals(session.getId())) {
+                sala.setVermelho(null);
+                salaService.atualizarSalas(salas);
+                return;
+            }
+        }
+
+        if (salaRemover != null) {
+            salas.remove(salaRemover);
+            salaService.atualizarSalas(salas);
+        }
+    }
 }
